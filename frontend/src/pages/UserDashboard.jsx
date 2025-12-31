@@ -452,13 +452,8 @@ const UserDashboard = () => {
               justifyContent: 'center',
               gap: '0.5rem',
               padding: '0.5rem 1rem',
-              backgroundColor: '#4f46e5',
-              color: 'white',
-              border: 'none',
               borderRadius: '0.375rem',
-              cursor: 'pointer',
               fontWeight: '500',
-              transition: 'background-color 0.2s',
               fontSize: '0.875rem'
             }}
           >
@@ -568,57 +563,196 @@ const UserDashboard = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 0' }}>
-      <h1 style={{ marginBottom: '2rem' }}>My Account</h1>
+      {/* Welcome Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+        borderRadius: '16px',
+        padding: '2rem',
+        marginBottom: '2rem',
+        color: 'white',
+        boxShadow: 'var(--shadow-primary)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ 
+            margin: '0 0 0.5rem 0', 
+            fontSize: '2rem', 
+            fontWeight: '700',
+            color: 'white'
+          }}>
+            Welcome back, {user?.name?.split(' ')[0] || 'User'}! 👋
+          </h1>
+          <p style={{ 
+            margin: 0, 
+            fontSize: '1rem', 
+            opacity: 0.9,
+            color: 'white'
+          }}>
+            Here's an overview of your account activity
+          </p>
+        </div>
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-30px',
+          left: '-30px',
+          width: '150px',
+          height: '150px',
+          background: 'rgba(255, 255, 255, 0.08)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
+      </div>
 
       {/* Overview Stats */}
       <div className="stats-grid" style={{ marginBottom: '2rem' }}>
-        <div className="stat-card">
+        <div className="stat-card" style={{
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+          color: 'white',
+          border: 'none',
+          boxShadow: 'var(--shadow-primary)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <FiShoppingCart size={32} color="var(--primary)" />
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <FiShoppingCart size={28} color="white" />
+            </div>
           </div>
-          <span className="stat-number">{orders.length}</span>
-          <span className="stat-label">Total Orders</span>
+          <span className="stat-number" style={{ color: 'white', fontSize: '2.5rem' }}>{orders.length}</span>
+          <span className="stat-label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Total Orders</span>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" style={{
+          background: 'linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%)',
+          color: 'white',
+          border: 'none',
+          boxShadow: 'var(--shadow-danger)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <FiPackage size={32} color="var(--success)" />
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <FiPackage size={28} color="white" />
+            </div>
           </div>
-          <span className="stat-number">{getCartItemsCount()}</span>
-          <span className="stat-label">Items in Cart</span>
+          <span className="stat-number" style={{ color: 'white', fontSize: '2.5rem' }}>{getCartItemsCount()}</span>
+          <span className="stat-label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Items in Cart</span>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" style={{
+          background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)',
+          color: 'white',
+          border: 'none',
+          boxShadow: 'var(--shadow-accent)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <FiHeart size={32} color="var(--danger)" />
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <FiHeart size={28} color="white" />
+            </div>
           </div>
-          <span className="stat-number">{wishlist.length}</span>
-          <span className="stat-label">Wishlist Items</span>
+          <span className="stat-number" style={{ color: 'white', fontSize: '2.5rem' }}>{wishlist.length}</span>
+          <span className="stat-label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Wishlist Items</span>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" style={{
+          background: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)',
+          color: 'white',
+          border: 'none',
+          boxShadow: 'var(--shadow-secondary)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <FiUser size={32} color="var(--accent)" />
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <FiUser size={28} color="white" />
+            </div>
           </div>
-          <span className="stat-number">{formatPrice(totalSpent)}</span>
-          <span className="stat-label">Total Spent</span>
+          <span className="stat-number" style={{ color: 'white', fontSize: '2.5rem' }}>{formatPrice(totalSpent)}</span>
+          <span className="stat-label" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Total Spent</span>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card" style={{
+          background: 'linear-gradient(135deg, var(--secondary-lighter) 0%, var(--primary-50) 100%)',
+          color: 'var(--text-primary)',
+          border: 'none',
+          boxShadow: 'var(--shadow-lg)'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-            <FiStar size={32} color="var(--warning)" />
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(31, 41, 55, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FiStar size={28} color="var(--text-primary)" />
+            </div>
           </div>
-          <span className="stat-number">{userReviews.length}</span>
-          <span className="stat-label">Reviews Written</span>
+          <span className="stat-number" style={{ color: 'var(--text-primary)', fontSize: '2.5rem' }}>{userReviews.length}</span>
+          <span className="stat-label" style={{ color: 'var(--text-secondary)' }}>Reviews Written</span>
         </div>
       </div>
 
       <div className="grid grid-2" style={{ gap: '2rem' }}>
         {/* Profile Information */}
-        <div className="card">
-          <div className="card-header">
+        <div className="card" style={{
+          boxShadow: 'var(--shadow)',
+          border: '1px solid var(--border-light)',
+          transition: 'var(--transition-base)'
+        }}>
+          <div className="card-header" style={{
+            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+            color: 'white',
+            borderBottom: 'none'
+          }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3>Profile Information</h3>
+              <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FiUser size={20} />
+                Profile Information
+              </h3>
               <button
                 onClick={() => {
                   if (editing) {
@@ -631,7 +765,13 @@ const UserDashboard = () => {
                   }
                   setEditing(!editing);
                 }}
-                className="btn btn-sm btn-secondary"
+                className="btn btn-sm"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  backdropFilter: 'blur(10px)'
+                }}
               >
                 <FiEdit />
                 {editing ? 'Cancel' : 'Edit'}
@@ -726,24 +866,74 @@ const UserDashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="card">
-          <div className="card-header">
-            <h3>Quick Actions</h3>
+        <div className="card" style={{
+          boxShadow: 'var(--shadow)',
+          border: '1px solid var(--border-light)',
+          transition: 'var(--transition-base)'
+        }}>
+          <div className="card-header" style={{
+            background: 'linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%)',
+            color: 'white',
+            borderBottom: 'none'
+          }}>
+            <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FiPackage size={20} />
+              Quick Actions
+            </h3>
           </div>
           <div className="card-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <Link to="/cart" className="btn btn-primary">
-                <FiShoppingCart />
+              <Link 
+                to="/cart" 
+                className="btn btn-primary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.875rem 1.5rem',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <FiShoppingCart size={18} />
                 View Cart ({getCartItemsCount()} items)
               </Link>
               
-              <Link to="/wishlist" className="btn btn-secondary">
-                <FiHeart />
+              <Link 
+                to="/wishlist" 
+                className="btn btn-secondary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.875rem 1.5rem',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <FiHeart size={18} />
                 My Wishlist ({wishlist.length} items)
               </Link>
               
-              <Link to="/products" className="btn btn-success">
-                <FiPackage />
+              <Link 
+                to="/products" 
+                className="btn btn-success"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  padding: '0.875rem 1.5rem',
+                  borderRadius: '10px',
+                  fontWeight: '600',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                <FiPackage size={18} />
                 Browse Products
               </Link>
             </div>
@@ -752,9 +942,20 @@ const UserDashboard = () => {
       </div>
 
       {/* Order History */}
-      <div className="card" style={{ marginTop: '2rem' }}>
-        <div className="card-header">
-          <h3>Order History</h3>
+      <div className="card" style={{ 
+        marginTop: '2rem',
+        boxShadow: 'var(--shadow)',
+        border: '1px solid var(--border-light)'
+      }}>
+        <div className="card-header" style={{
+          background: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)',
+          color: 'white',
+          borderBottom: 'none'
+        }}>
+          <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <FiShoppingCart size={20} />
+            Order History
+          </h3>
         </div>
         <div className="card-body">
           {loading ? (
@@ -773,32 +974,115 @@ const UserDashboard = () => {
             </div>
           ) : (
             <div className="table-container" style={{ overflowX: 'auto' }}>
-              <table className="table">
+              <table className="table" style={{
+                width: '100%',
+                borderCollapse: 'separate',
+                borderSpacing: '0'
+              }}>
                 <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Date</th>
-                    <th>Items</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                  <tr style={{
+                    background: 'linear-gradient(135deg, var(--bg-primary) 0%, var(--gray-50) 100%)',
+                    borderBottom: '2px solid var(--border-light)'
+                  }}>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Order ID</th>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Date</th>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Items</th>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Total</th>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Status</th>
+                    <th style={{
+                      padding: '1rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.875rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
-                    <tr key={order.id}>
-                      <td>#{order.id}</td>
-                      <td>{formatDate(order.date)}</td>
-                      <td>{order.items.length} item(s)</td>
-                      <td>{formatPrice(order.total)}</td>
-                      <td>
-                        <span className={`badge badge-${getStatusColor(order.status)}`}>
+                  {orders.map((order, index) => (
+                    <tr 
+                      key={order.id}
+                      style={{
+                        borderBottom: '1px solid var(--border-light)',
+                        transition: 'var(--transition-base)',
+                        background: index % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--gray-100)';
+                        e.currentTarget.style.transform = 'scale(1.01)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = index % 2 === 0 ? 'var(--bg-secondary)' : 'var(--bg-primary)';
+                        e.currentTarget.style.transform = 'scale(1)';
+                      }}
+                    >
+                      <td style={{ padding: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>#{order.id}</td>
+                      <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>{formatDate(order.date)}</td>
+                      <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>{order.items.length} item(s)</td>
+                      <td style={{ padding: '1rem', fontWeight: '600', color: 'var(--secondary)', fontSize: '1.1rem' }}>{formatPrice(order.total)}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <span className={`badge badge-${getStatusColor(order.status)}`} style={{
+                          padding: '0.375rem 0.75rem',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          textTransform: 'capitalize'
+                        }}>
                           {order.status}
                         </span>
                       </td>
-                      <td>
-                        <button className="btn btn-sm btn-secondary">
-                          <FiEye />
+                      <td style={{ padding: '1rem' }}>
+                        <button className="btn btn-sm btn-secondary" style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          transition: 'all 0.2s ease'
+                        }}>
+                          <FiEye size={14} />
                           View
                         </button>
                       </td>
@@ -812,27 +1096,33 @@ const UserDashboard = () => {
       </div>
 
       {/* Products to Review */}
-      <div className="card" style={{ marginTop: '2rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }}>
+      <div className="card" style={{ 
+        marginTop: '2rem', 
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        border: '1px solid #e5e7eb'
+      }}>
         <div className="card-header" style={{ 
-          backgroundColor: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0',
+          background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)',
+          color: 'white',
+          borderBottom: 'none',
           padding: '1.25rem 1.5rem',
-          borderRadius: '0.5rem 0.5rem 0 0',
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem'
         }}>
-          <FiMessageSquare size={24} className="text-indigo-600" />
-          <h3 style={{ margin: 0, fontWeight: '600', color: '#1e293b' }}>Products to Review</h3>
+          <FiMessageSquare size={24} color="white" />
+          <h3 style={{ margin: 0, fontWeight: '600', color: 'white' }}>Products to Review</h3>
           {reviewableProducts.length > 0 && (
             <span style={{
-              backgroundColor: '#e0e7ff',
-              color: '#4f46e5',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
               fontSize: '0.75rem',
               fontWeight: '600',
-              padding: '0.25rem 0.5rem',
+              padding: '0.25rem 0.75rem',
               borderRadius: '9999px',
-              marginLeft: 'auto'
+              marginLeft: 'auto',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.3)'
             }}>
               {reviewableProducts.length} {reviewableProducts.length === 1 ? 'item' : 'items'}
             </span>
@@ -884,28 +1174,30 @@ const UserDashboard = () => {
       {/* My Reviews */}
       <div className="card" style={{ 
         marginTop: '2rem',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+        boxShadow: 'var(--shadow)',
+        border: '1px solid var(--border-light)'
       }}>
         <div className="card-header" style={{
-          backgroundColor: '#f8fafc',
-          borderBottom: '1px solid #e2e8f0',
+          background: 'linear-gradient(135deg, var(--secondary-lighter) 0%, var(--primary-50) 100%)',
+          color: 'var(--text-primary)',
+          borderBottom: 'none',
           padding: '1.25rem 1.5rem',
-          borderRadius: '0.5rem 0.5rem 0 0',
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem'
         }}>
-          <FiStar size={24} className="text-amber-500" />
-          <h3 style={{ margin: 0, fontWeight: '600', color: '#1e293b' }}>My Reviews</h3>
+          <FiStar size={24} color="var(--text-primary)" />
+          <h3 style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)' }}>My Reviews</h3>
           {userReviews.length > 0 && (
             <span style={{
-              backgroundColor: '#fef3c7',
-              color: '#92400e',
+              backgroundColor: 'var(--bg-tertiary)',
+              color: 'var(--text-primary)',
               fontSize: '0.75rem',
               fontWeight: '600',
-              padding: '0.25rem 0.5rem',
+              padding: '0.25rem 0.75rem',
               borderRadius: '9999px',
-              marginLeft: 'auto'
+              marginLeft: 'auto',
+              border: '1px solid var(--border-light)'
             }}>
               {userReviews.length} {userReviews.length === 1 ? 'review' : 'reviews'}
             </span>
@@ -918,24 +1210,24 @@ const UserDashboard = () => {
                 width: '80px',
                 height: '80px',
                 margin: '0 auto 1rem',
-                backgroundColor: '#fffbeb',
+                backgroundColor: 'var(--accent-50)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <FiStar size={40} color="#fbbf24" />
+                <FiStar size={40} color="var(--accent)" />
               </div>
               <h4 style={{
                 fontSize: '1.125rem',
                 fontWeight: '600',
-                color: '#1e293b',
+                color: 'var(--text-primary)',
                 marginBottom: '0.5rem'
               }}>
                 No Reviews Yet
               </h4>
               <p style={{
-                color: '#64748b',
+                color: 'var(--text-secondary)',
                 maxWidth: '400px',
                 margin: '0 auto 1.5rem',
                 lineHeight: '1.5'
@@ -970,14 +1262,14 @@ const UserDashboard = () => {
                   <div 
                     key={review._id} 
                     style={{
-                      background: 'white',
+                      background: 'var(--bg-secondary)',
                       borderRadius: '0.5rem',
                       padding: '1.25rem',
-                      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
-                      border: '1px solid #e2e8f0',
-                      transition: 'all 0.2s',
+                      boxShadow: 'var(--shadow-sm)',
+                      border: '1px solid var(--border-light)',
+                      transition: 'var(--transition-base)',
                       ':hover': {
-                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                        boxShadow: 'var(--shadow-md)'
                       }
                     }}
                   >
@@ -994,8 +1286,8 @@ const UserDashboard = () => {
                           flexShrink: 0,
                           borderRadius: '0.375rem',
                           overflow: 'hidden',
-                          border: '1px solid #e2e8f0',
-                          backgroundColor: '#f8fafc'
+                          border: '1px solid var(--border-light)',
+                          backgroundColor: 'var(--bg-primary)'
                         }}>
                           <Image
                             src={review.product?.image || '/placeholder-product.jpg'}
@@ -1021,7 +1313,7 @@ const UserDashboard = () => {
                               margin: 0,
                               fontSize: '1rem',
                               fontWeight: '600',
-                              color: '#1e293b',
+                              color: 'var(--text-primary)',
                               whiteSpace: 'nowrap',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis'
@@ -1034,7 +1326,7 @@ const UserDashboard = () => {
                               alignItems: 'center',
                               gap: '0.25rem',
                               flexShrink: 0,
-                              backgroundColor: '#fef3c7',
+                              backgroundColor: 'var(--accent-50)',
                               padding: '0.25rem 0.5rem',
                               borderRadius: '9999px'
                             }}>
@@ -1042,7 +1334,7 @@ const UserDashboard = () => {
                               <span style={{
                                 fontSize: '0.75rem',
                                 fontWeight: '600',
-                                color: '#92400e',
+                                color: 'var(--accent-dark)',
                                 marginLeft: '0.25rem'
                               }}>
                                 {review.rating.toFixed(1)}
@@ -1053,7 +1345,7 @@ const UserDashboard = () => {
                           <p style={{
                             margin: '0.5rem 0 0',
                             fontSize: '0.875rem',
-                            color: '#334155',
+                            color: 'var(--text-secondary)',
                             lineHeight: '1.5'
                           }}>
                             {review.comment}
@@ -1065,7 +1357,7 @@ const UserDashboard = () => {
                             alignItems: 'center',
                             marginTop: '0.75rem',
                             fontSize: '0.75rem',
-                            color: '#64748b'
+                            color: 'var(--text-tertiary)'
                           }}>
                             <span>Reviewed on {formatDate(review.createdAt)}</span>
                             <span>•</span>
@@ -1407,34 +1699,20 @@ const UserDashboard = () => {
                   </button>
                   <button
                     type="submit"
+                    className="btn btn-primary"
                     style={{
                       padding: '0.5rem 1.5rem',
                       borderRadius: '0.375rem',
-                      border: 'none',
-                      backgroundColor: reviewForm.isSubmitting ? '#a5b4fc' : 
-                                   (reviewForm.comment.trim().length >= MIN_REVIEW_LENGTH ? '#4f46e5' : '#c7d2fe'),
-                      color: 'white',
                       fontSize: '0.875rem',
                       fontWeight: '500',
                       cursor: reviewForm.isSubmitting || reviewForm.comment.trim().length < MIN_REVIEW_LENGTH ? 'not-allowed' : 'pointer',
-                      transition: 'all 0.2s',
+                      opacity: reviewForm.isSubmitting || reviewForm.comment.trim().length < MIN_REVIEW_LENGTH ? 0.6 : 1,
                       display: 'inline-flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       minWidth: '120px'
                     }}
                     disabled={reviewForm.isSubmitting || reviewForm.comment.trim().length < MIN_REVIEW_LENGTH}
-                    onMouseOver={(e) => {
-                      if (!reviewForm.isSubmitting && reviewForm.comment.trim().length >= MIN_REVIEW_LENGTH) {
-                        e.currentTarget.style.backgroundColor = '#4338ca';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (!reviewForm.isSubmitting) {
-                        e.currentTarget.style.backgroundColor = 
-                          reviewForm.comment.trim().length >= MIN_REVIEW_LENGTH ? '#4f46e5' : '#c7d2fe';
-                      }
-                    }}
                   >
                     {reviewForm.isSubmitting ? (
                       <>

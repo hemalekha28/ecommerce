@@ -185,7 +185,7 @@ const OrderManagement = () => {
         
         <div className="stat-card">
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="stat-icon">$</span>
+            <span className="stat-icon">₹</span>
             <div>
               <span className="stat-number">{formatPrice(stats.totalRevenue)}</span>
               <span className="stat-label">Total Revenue</span>

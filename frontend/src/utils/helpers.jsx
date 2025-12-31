@@ -1,7 +1,12 @@
 export const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-US', {
+  if (price === null || price === undefined || isNaN(price)) {
+    return '₹0';
+  }
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'INR'
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
   }).format(price);
 };
 

@@ -58,7 +58,10 @@ const Carousel = ({ slides = [] }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
                 <div className="container mx-auto px-4 h-full flex items-center relative z-[1]">
                   <div className="max-w-2xl text-white animate-fade-in">
-                    <div className="inline-block px-4 py-2 rounded-full bg-blue-600 text-white text-sm font-bold mb-4 tracking-wide uppercase">
+                    <div className="inline-block px-4 py-2 rounded-full text-white text-sm font-bold mb-4 tracking-wide uppercase" style={{
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)'
+                    }}>
                       {slide.badge || 'New Arrivals'}
                     </div>
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">

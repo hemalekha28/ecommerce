@@ -75,13 +75,60 @@ const Cart = () => {
   if (cartItems.length === 0) {
     return (
       <div className="container" style={{ padding: '2rem 0', minHeight: '60vh' }}>
-        <div className="text-center" style={{ padding: '4rem 0' }}>
-          <FiShoppingBag size={64} color="var(--gray-400)" style={{ marginBottom: '2rem' }} />
-          <h2 style={{ marginBottom: '1rem', color: 'var(--gray-600)' }}>Your cart is empty</h2>
-          <p style={{ marginBottom: '2rem', color: 'var(--gray-500)' }}>
+        <div className="card" style={{ 
+          padding: '4rem 2rem', 
+          textAlign: 'center',
+          background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+          border: 'none',
+          boxShadow: '0 8px 20px rgba(99, 102, 241, 0.2)'
+        }}>
+          <div style={{
+            width: '100px',
+            height: '100px',
+            margin: '0 auto 2rem',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
+          }}>
+            <FiShoppingBag size={48} color="white" />
+          </div>
+          <h2 style={{ 
+            marginBottom: '1rem', 
+            color: '#1f2937',
+            fontSize: '2rem',
+            fontWeight: '700'
+          }}>Your cart is empty</h2>
+          <p style={{ 
+            marginBottom: '2rem', 
+            color: '#6b7280',
+            fontSize: '1.125rem'
+          }}>
             Looks like you haven't added any items to your cart yet.
           </p>
-          <Link to="/products" className="btn btn-primary btn-lg">
+          <Link 
+            to="/products" 
+            className="btn btn-primary btn-lg"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              padding: '1rem 2rem',
+              borderRadius: '12px',
+              fontWeight: '600',
+              boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+            }}
+          >
             Continue Shopping
           </Link>
         </div>
@@ -96,25 +143,96 @@ const Cart = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Shopping Cart</h1>
-        <button
-          onClick={clearCart}
-          className="btn btn-secondary"
-        >
-          <FiTrash2 />
-          Clear Cart
-        </button>
+      {/* Header Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '2rem',
+        marginBottom: '2rem',
+        color: 'white',
+        boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <FiShoppingBag size={28} color="white" />
+            </div>
+            <div>
+              <h1 style={{ margin: '0 0 0.25rem 0', fontSize: '2rem', fontWeight: '700', color: 'white' }}>Shopping Cart</h1>
+              <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+                {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={clearCart}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              color: 'white',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '10px',
+              fontWeight: '600',
+              backdropFilter: 'blur(10px)',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
+            <FiTrash2 />
+            Clear Cart
+          </button>
+        </div>
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
       </div>
 
       <div className="grid grid-3" style={{ gap: '2rem' }}>
         {/* Cart Items */}
         <div style={{ gridColumn: '1 / 3' }}>
-          <div className="card">
-            <div className="card-body">
-              <h3 style={{ marginBottom: '1.5rem' }}>
+          <div className="card" style={{
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div className="card-header" style={{
+              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              color: 'white',
+              borderBottom: 'none'
+            }}>
+              <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <FiShoppingBag size={20} color="white" />
                 Cart Items ({cartItems.length} {cartItems.length === 1 ? 'item' : 'items'})
               </h3>
+            </div>
+            <div className="card-body">
 
               {cartItems.map((item, index) => {
                 const productId = getProductId(item);
@@ -282,9 +400,18 @@ const Cart = () => {
 
         {/* Order Summary */}
         <div>
-          <div className="card" style={{ position: 'sticky', top: '2rem' }}>
-            <div className="card-header">
-              <h3>Order Summary</h3>
+          <div className="card" style={{ 
+            position: 'sticky', 
+            top: '2rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            border: '1px solid #e5e7eb'
+          }}>
+            <div className="card-header" style={{
+              background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+              color: 'white',
+              borderBottom: 'none'
+            }}>
+              <h3 style={{ margin: 0, color: 'white' }}>Order Summary</h3>
             </div>
             <div className="card-body">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -324,15 +451,62 @@ const Cart = () => {
                 )}
               </div>
             </div>
-            <div className="card-footer">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="card-footer" style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 <button
                   onClick={handleProceedToCheckout}
                   className="btn btn-primary btn-full btn-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '1rem 2rem',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    fontSize: '1.125rem',
+                    boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+                  }}
                 >
                   {user ? 'Proceed to Checkout' : 'Login to Checkout'}
                 </button>
-                <Link to="/products" className="btn btn-secondary btn-full">
+                <Link 
+                  to="/products" 
+                  className="btn btn-secondary btn-full"
+                  style={{
+                    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '0.875rem 1.5rem',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 6px rgba(79, 172, 254, 0.2)',
+                    transition: 'all 0.3s ease',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    display: 'block'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 6px 12px rgba(79, 172, 254, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(79, 172, 254, 0.2)';
+                  }}
+                >
                   Continue Shopping
                 </Link>
               </div>

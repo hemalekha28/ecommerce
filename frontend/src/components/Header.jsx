@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/cartContext';
@@ -11,6 +11,24 @@ const Header = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -129,7 +147,7 @@ const Header = () => {
 
             {/* User Menu */}
             {user ? (
-              <div style={{ position: 'relative' }}>
+              <div ref={userMenuRef} style={{ position: 'relative' }}>
                 <button
                   className="btn btn-secondary"
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -200,6 +218,12 @@ const Header = () => {
 
       {/* Mobile Search (visible only on mobile) */}
       <div className="container" style={{ display: 'none' }}>
+        <style>
+          {`@media (max-width: 768px) {
+            .navbar-content form { display: none !important; }
+            .container > form { display: flex !important; }
+          }`}
+        </style>
         <form onSubmit={handleSearch} className="flex" style={{ padding: '1rem 0' }}>
           <input
             type="text"
@@ -214,21 +238,6 @@ const Header = () => {
           </button>
         </form>
       </div>
-
-      {/* Click outside to close user menu */}
-      {showUserMenu && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 999
-          }}
-          onClick={() => setShowUserMenu(false)}
-        />
-      )}
     </header>
   );
 };

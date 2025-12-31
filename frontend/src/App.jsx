@@ -143,7 +143,7 @@ function App() {
   }
 
   return (
-    <AuthProvider initialRole={selectedRole}>
+    <AuthProvider>
       <NotificationProvider>
         <CartProvider>
           <Router>
@@ -263,9 +263,6 @@ function AppContent({ selectedRole }) {
       
       {/* Chatbot - Available for all users */}
       {user && <SimpleChatbot />}
-      
-      {/* Test Chatbot - Always visible for debugging */}
-      <SimpleChatbot />
       
       {/* Notification Toast Component */}
       <NotificationToast />

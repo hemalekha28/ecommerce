@@ -71,37 +71,77 @@ const ProductListing = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 0' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Products</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: 'var(--gray-600)' }}>
-            {loading ? 'Loading...' : `${products.length} products found`}
-          </span>
+      {/* Header Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+        borderRadius: '16px',
+        padding: '2rem',
+        marginBottom: '2rem',
+        color: 'white',
+        boxShadow: 'var(--shadow-primary)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem', fontWeight: '700', color: 'white' }}>Products</h1>
+            <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+              {loading ? 'Loading...' : `${products.length} products found`}
+            </p>
+          </div>
         </div>
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
       </div>
 
 
       {/* Error Message */}
       {error && (
         <div style={{
-          background: '#fee',
-          color: '#c33',
-          padding: '1rem',
-          borderRadius: '4px',
-          marginBottom: '1rem',
-          border: '1px solid #fcc'
+          background: 'linear-gradient(135deg, var(--danger-50) 0%, var(--danger-100) 100%)',
+          color: 'var(--danger)',
+          padding: '1.25rem',
+          borderRadius: '12px',
+          marginBottom: '1.5rem',
+          border: '1px solid var(--danger-light)',
+          boxShadow: 'var(--shadow-danger)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
-          <strong>Error:</strong> {error}
+          <div>
+            <strong style={{ fontSize: '1.125rem' }}>Error:</strong> {error}
+          </div>
           <button 
             onClick={loadProducts} 
             style={{ 
-              marginLeft: '1rem', 
-              padding: '0.25rem 0.5rem',
-              background: '#c33',
+              padding: '0.625rem 1.25rem',
+              background: 'linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%)',
               color: 'white',
               border: 'none',
-              borderRadius: '3px',
-              cursor: 'pointer'
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              transition: 'var(--transition-base)',
+              boxShadow: 'var(--shadow-danger)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'var(--shadow-danger)';
             }}
           >
             Retry
@@ -110,8 +150,20 @@ const ProductListing = () => {
       )}
 
       {/* Filters */}
-      <div className="filters">
-        <div className="filters-row">
+      <div className="card" style={{
+        marginBottom: '2rem',
+        boxShadow: 'var(--shadow)',
+        border: '1px solid var(--border-light)'
+      }}>
+        <div className="card-header" style={{
+          background: 'linear-gradient(135deg, var(--secondary) 0%, var(--secondary-dark) 100%)',
+          color: 'white',
+          borderBottom: 'none'
+        }}>
+          <h3 style={{ margin: 0, color: 'white', fontSize: '1.25rem', fontWeight: '600' }}>Filter Products</h3>
+        </div>
+        <div className="card-body">
+          <div className="filters-row">
           {/* Search */}
           <div className="filter-group">
             <label className="form-label">Search</label>
@@ -147,7 +199,7 @@ const ProductListing = () => {
             <input
               type="number"
               className="form-input"
-              placeholder="$0"
+              placeholder="₹0"
               value={filters.minPrice}
               onChange={(e) => handleFilterChange('minPrice', e.target.value)}
             />
@@ -186,10 +238,29 @@ const ProductListing = () => {
             <button
               onClick={clearFilters}
               className="btn btn-secondary"
+              style={{
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                border: 'none',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '10px',
+                fontWeight: '600',
+                boxShadow: '0 4px 6px rgba(245, 87, 108, 0.2)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 12px rgba(245, 87, 108, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 4px 6px rgba(245, 87, 108, 0.2)';
+              }}
             >
               Clear Filters
             </button>
           </div>
+        </div>
         </div>
       </div>
 
@@ -199,22 +270,96 @@ const ProductListing = () => {
           <div className="spinner"></div>
         </div>
       ) : error ? (
-        <div className="text-center" style={{ padding: '4rem 0' }}>
-          <h3 style={{ color: '#c33', marginBottom: '1rem' }}>Unable to load products</h3>
-          <p style={{ color: 'var(--gray-500)', marginBottom: '2rem' }}>
+        <div className="card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 1.5rem',
+            background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '2.5rem' }}>⚠️</span>
+          </div>
+          <h3 style={{ 
+            color: '#dc2626', 
+            marginBottom: '1rem',
+            fontSize: '1.5rem',
+            fontWeight: '600'
+          }}>Unable to load products</h3>
+          <p style={{ color: 'var(--gray-500)', marginBottom: '2rem', fontSize: '1.125rem' }}>
             {error}
           </p>
-          <button onClick={loadProducts} className="btn btn-primary">
+          <button 
+            onClick={loadProducts} 
+            className="btn btn-primary"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              padding: '0.875rem 2rem',
+              borderRadius: '12px',
+              fontWeight: '600',
+              boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+            }}
+          >
             Try Again
           </button>
         </div>
       ) : products.length === 0 ? (
-        <div className="text-center" style={{ padding: '4rem 0' }}>
-          <h3 style={{ color: 'var(--gray-600)', marginBottom: '1rem' }}>No products found</h3>
-          <p style={{ color: 'var(--gray-500)', marginBottom: '2rem' }}>
+        <div className="card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 1.5rem',
+            background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '2.5rem' }}>🔍</span>
+          </div>
+          <h3 style={{ 
+            color: 'var(--gray-700)', 
+            marginBottom: '1rem',
+            fontSize: '1.5rem',
+            fontWeight: '600'
+          }}>No products found</h3>
+          <p style={{ color: 'var(--gray-500)', marginBottom: '2rem', fontSize: '1.125rem' }}>
             Try adjusting your filters or search terms
           </p>
-          <button onClick={clearFilters} className="btn btn-primary">
+          <button 
+            onClick={clearFilters} 
+            className="btn btn-primary"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              padding: '0.875rem 2rem',
+              borderRadius: '12px',
+              fontWeight: '600',
+              boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+            }}
+          >
             Clear All Filters
           </button>
         </div>

@@ -58,25 +58,36 @@ const Register = () => {
       if (result.success) {
         navigate('/');
       } else {
-        setError(result.error);
+        setError(result.message || 'Registration failed. Please try again.');
       }
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      console.error('Registration error:', err);
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container" style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem' }}>
-      <div className="card">
-        <div className="card-body">
-          <div className="text-center" style={{ marginBottom: '2rem' }}>
-            <h1>Create Account</h1>
-            <p style={{ color: 'var(--gray-600)' }}>
-              Join us as a {userRole}
-            </p>
-          </div>
+    <div className="container" style={{ maxWidth: '450px', margin: '4rem auto', padding: '2rem' }}>
+      <div className="card" style={{
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb',
+        borderRadius: '16px',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+          padding: '2rem',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem', fontWeight: '700', color: 'white' }}>Create Account</h1>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+            Join us as a {userRole}
+          </p>
+        </div>
+        <div className="card-body" style={{ padding: '2rem' }}>
 
           {error && (
             <div className="alert alert-danger" style={{ marginBottom: '1.5rem' }}>
@@ -233,6 +244,35 @@ const Register = () => {
               type="submit"
               className="btn btn-primary btn-full btn-lg"
               disabled={loading}
+              style={{
+                background: loading 
+                  ? '#e5e7eb' 
+                  : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                border: 'none',
+                color: loading ? '#9ca3af' : 'white',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '1.125rem',
+                boxShadow: loading 
+                  ? 'none' 
+                  : '0 8px 20px rgba(245, 87, 108, 0.3)',
+                transition: 'all 0.3s ease',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(245, 87, 108, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(245, 87, 108, 0.3)';
+                }
+              }}
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>

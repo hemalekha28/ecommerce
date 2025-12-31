@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiUsers, FiShoppingCart, FiDollarSign, FiTrendingUp, FiEye, FiDownload, FiBarChart2, FiRefreshCw } from 'react-icons/fi';
-import StatCard from '../components/StatCard';
-import { getTextColorForBackground } from '../utils/colorUtils';
+import { FiPackage, FiUsers, FiShoppingCart, FiDollarSign, FiTrendingUp, FiDownload, FiBarChart2, FiRefreshCw } from 'react-icons/fi';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -134,7 +132,7 @@ const AdminDashboard = () => {
       if (analytics?.salesByMonth && analytics.salesByMonth.length > 0) {
         const salesData = analytics.salesByMonth.map(item => ({
           'Month': item.month,
-          'Sales ($)': item.sales,
+          'Sales (₹)': item.sales,
           'Orders': item.orders || 0,
           'Growth (%)': item.growth || 0
         }));
@@ -148,7 +146,7 @@ const AdminDashboard = () => {
           'Customer Name': order.userName,
           'Customer Email': order.userEmail || 'N/A',
           'Order Date': formatDate(order.date),
-          'Total Amount ($)': order.total,
+          'Total Amount (₹)': order.total,
           'Status': order.status,
           'Items Count': order.itemsCount || 'N/A',
           'Payment Method': order.paymentMethod || 'N/A'
@@ -162,7 +160,7 @@ const AdminDashboard = () => {
           'Rank': index + 1,
           'Product ID': product.id,
           'Product Name': product.name,
-          'Price ($)': product.price,
+          'Price (₹)': product.price,
           'Rating': product.rating,
           'Total Sales': product.totalSales || 'N/A',
           'Stock Quantity': product.stock || 'N/A',
@@ -175,7 +173,7 @@ const AdminDashboard = () => {
       if (analytics?.salesByCategory && analytics.salesByCategory.length > 0) {
         const categoryData = analytics.salesByCategory.map(category => ({
           'Category': category.name,
-          'Sales ($)': category.sales,
+          'Sales (₹)': category.sales,
           'Percentage (%)': category.percentage,
           'Orders': category.orders || 0
         }));
@@ -191,7 +189,7 @@ const AdminDashboard = () => {
           'Role': user.role || 'user',
           'Join Date': formatDate(user.joinDate),
           'Total Orders': user.totalOrders || 0,
-          'Total Spent ($)': user.totalSpent || 0,
+          'Total Spent (₹)': user.totalSpent || 0,
           'Status': user.status || 'Active'
         }));
         const usersSheet = XLSX.utils.json_to_sheet(usersData);
@@ -231,7 +229,7 @@ const AdminDashboard = () => {
       }
 
       const csvContent = [
-        ['Month', 'Sales ($)', 'Orders', 'Growth (%)'],
+        ['Month', 'Sales (₹)', 'Orders', 'Growth (%)'],
         ...analytics.salesByMonth.map(item => [
           item.month,
           item.sales,
@@ -269,13 +267,13 @@ const AdminDashboard = () => {
         <div style={{
           width: '50px',
           height: '50px',
-          border: '4px solid #e5e7eb',
-          borderTop: '4px solid #3b82f6',
+          border: '4px solid var(--border-light)',
+          borderTop: '4px solid var(--primary)',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
         }}></div>
         <p style={{ 
-          color: '#4b5563',
+          color: 'var(--text-secondary)',
           fontSize: '1rem',
           fontWeight: '500',
         }}>Loading dashboard data...</p>
@@ -292,32 +290,32 @@ const AdminDashboard = () => {
         margin: '0 auto',
       }}>
         <div style={{
-              background: '#f9fafb',
+              background: 'var(--bg-primary)',
               borderRadius: '12px',
               padding: '2rem',
-              border: '1px solid #e5e7eb',
+              border: '1px solid var(--border-light)',
         }}>
           <div style={{
             width: '60px',
             height: '60px',
-              background: '#f3f4f6',
+              background: 'var(--bg-secondary)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1.5rem',
-              border: '2px solid #4f46e5',
+              border: '2px solid var(--primary)',
             }}>
-              <FiBarChart2 size={28} color="#4f46e5" />
+              <FiBarChart2 size={28} color="var(--primary)" />
           </div>
           <h3 style={{
             fontSize: '1.25rem',
             fontWeight: '600',
-            color: '#1f2937',
+            color: 'var(--text-primary)',
             marginBottom: '0.75rem',
           }}>Unable to load analytics data</h3>
           <p style={{
-            color: '#6b7280',
+            color: 'var(--text-secondary)',
             marginBottom: '1.5rem',
             lineHeight: '1.5',
           }}>
@@ -326,26 +324,14 @@ const AdminDashboard = () => {
           </p>
           <button 
             onClick={loadAnalytics}
+            className="btn btn-primary"
             style={{
-              background: '#4f46e5',
-              color: '#ffffff',
-              border: 'none',
               padding: '0.625rem 1.5rem',
               borderRadius: '8px',
               fontWeight: '500',
-              cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              transition: 'all 0.2s',
-            }}
-            onMouseOver={(e) => {
-              e.target.style.background = '#4338ca';
-              e.target.style.transform = 'translateY(-1px)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.background = '#4f46e5';
-              e.target.style.transform = 'translateY(0)';
             }}
           >
             <FiRefreshCw size={18} className="refresh-icon" />
@@ -356,340 +342,94 @@ const AdminDashboard = () => {
     );
   }
 
-  // Color palette with improved contrast
-  const cardColors = [
-    'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-    'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-    'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-    'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)',
-    'linear-gradient(135deg, #ec4899 0%, #f472b6 100%)',
-    'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-  ];
-  
-  // Text colors with better contrast
-  const textColors = {
-    primary: '#1f2937',    // Dark gray for primary text
-    secondary: '#4b5563',  // Medium gray for secondary text
-    light: '#6b7280',      // Light gray for subtle text
-    white: '#ffffff',      // White text for dark backgrounds
-    error: '#dc2626'       // Red for error states
-  };
-
-  // Get text color based on background color
-  const getTextColor = (bgColor) => {
-    return getTextColorForBackground(bgColor);
-  };
 
   return (
-    <div className="container" style={{ 
-      padding: '2rem 0',
-      backgroundColor: '#e5e7eb',
-      minHeight: '100vh',
-      color: textColors.primary
-    }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: '2rem',
-        flexWrap: 'wrap',
-        gap: '1rem',
-      }}>
-        <h1 style={{ 
-          margin: 0,
-          color: '#1f2937',
-          fontWeight: '800',
-          fontSize: '2rem',
-          textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-        }}>
-          Admin Dashboard
-        </h1>
-        <div style={{ 
-          display: 'flex', 
-          gap: '1rem', 
-          alignItems: 'center',
-          flexWrap: 'wrap',
-        }}>
-          <button 
-            onClick={downloadExcelReport} 
-            style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
-              color: textColors.white,
-              border: 'none',
-              padding: '0.625rem 1.25rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontWeight: '600',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            }}
-            onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-            }}
-          >
-            <FiDownload size={18} />
-            <span>Download Report</span>
-          </button>
-          
-          <button 
-            onClick={loadAnalytics} 
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
-              color: textColors.white,
-              border: 'none',
-              padding: '0.625rem 1.25rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontWeight: '600',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            }}
-            onMouseOver={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
-            }}
-          >
-            <FiRefreshCw size={18} className="refresh-icon" />
-            <span>Refresh</span>
-          </button>
-          
-          <div style={{
-            fontSize: '0.875rem',
-              background: 'rgba(0, 0, 0, 0.05)',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontWeight: '500',
-              color: '#e5e7eb',
-          }}>
-            <div style={{
-              width: '10px',
-              height: '10px',
-              borderRadius: '50%',
-              backgroundColor: '#10b981',
-              boxShadow: '0 0 10px #10b981',
-              animation: 'pulse 2s infinite'
-            }}></div>
-            <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+    <div className="container" style={{ padding: '2rem 0' }}>
+      <h1 style={{ marginBottom: '2rem' }}>Admin Dashboard</h1>
+      {/* Overview Stats */}
+      <div className="stats-grid" style={{ marginBottom: '2rem' }}>
+        <div className="stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <FiPackage size={32} color="var(--primary)" />
+          </div>
+          <span className="stat-number">{analytics.totalProducts || 0}</span>
+          <span className="stat-label">Total Products</span>
+        </div>
+
+        <div className="stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <FiShoppingCart size={32} color="var(--success)" />
+          </div>
+          <span className="stat-number">{analytics.totalOrders || 0}</span>
+          <span className="stat-label">Total Orders</span>
+        </div>
+
+        <div className="stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <FiUsers size={32} color="var(--danger)" />
+          </div>
+          <span className="stat-number">{analytics.totalUsers || 0}</span>
+          <span className="stat-label">Total Users</span>
+        </div>
+
+        <div className="stat-card">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <FiDollarSign size={32} color="var(--accent)" />
+          </div>
+          <span className="stat-number">{formatPrice(analytics.totalRevenue || 0)}</span>
+          <span className="stat-label">Total Revenue</span>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <div className="card-header">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3>Quick Actions</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <button 
+                onClick={downloadExcelReport} 
+                className="btn btn-sm btn-success"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <FiDownload size={16} />
+                Download Report
+              </button>
+              <button 
+                onClick={loadAnalytics} 
+                className="btn btn-sm btn-secondary"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <FiRefreshCw size={16} />
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="card-body">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Link to="/admin/products" className="btn btn-primary">
+              <FiPackage />
+              Manage Products
+            </Link>
+            
+            <Link to="/admin/orders" className="btn btn-secondary">
+              <FiShoppingCart />
+              Manage Orders
+            </Link>
+            
+            <Link to="/admin/users" className="btn btn-success">
+              <FiUsers />
+              Manage Users
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem',
-      }}>
-        <StatCard
-          icon={FiPackage}
-          value={analytics.totalProducts || 0}
-          label="Total Products"
-          link="/admin/products"
-          linkText="View Products"
-          bgColor={cardColors[0]}
-          iconColor="#ffffff"
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-            marginTop: '0.5rem',
-            opacity: 0.9,
-          }}>
-            <FiTrendingUp size={16} />
-            <span>+12% from last month</span>
-          </div>
-        </StatCard>
-
-        <StatCard
-          icon={FiShoppingCart}
-          value={analytics.totalOrders || 0}
-          label="Total Orders"
-          link="/admin/orders"
-          linkText="View Orders"
-          bgColor={cardColors[1]}
-          iconColor="#ffffff"
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.875rem',
-            marginTop: '0.5rem',
-            opacity: 0.9,
-          }}>
-            <FiTrendingUp size={16} />
-            <span>+8% from last month</span>
-          </div>
-        </StatCard>
-
-        <StatCard
-          icon={FiUsers}
-          value={analytics.totalUsers || 0}
-          label="Total Users"
-          link="/admin/users"
-          linkText="View Users"
-          bgColor={cardColors[2]}
-          iconColor="#ffffff"
-        >
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.25rem',
-            fontSize: '0.75rem',
-            marginTop: '0.5rem',
-            opacity: 0.9,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.7)' }}></span>
-              <span>{analytics.userMetrics?.adminCount || 0} admins</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}></span>
-              <span>{analytics.userMetrics?.regularUserCount || 0} users</span>
-            </div>
-          </div>
-        </StatCard>
-
-        <StatCard
-          icon={FiDollarSign}
-          value={formatPrice(analytics.totalRevenue || 0)}
-          label="Total Revenue"
-          bgColor={cardColors[3]}
-          iconColor="#ffffff"
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginTop: '0.75rem',
-            padding: '0.5rem',
-            background: 'rgba(255, 255, 255, 0.15)',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-          }}>
-            <FiTrendingUp size={16} />
-            <span>{analytics.revenueGrowth ? `+${analytics.revenueGrowth}%` : '+8%'} this month</span>
-          </div>
-        </StatCard>
-      </div>
-
       {/* Charts Section */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem',
-      }}>
+      <div className="grid grid-2" style={{ gap: '2rem', marginBottom: '2rem' }}>
         {/* Sales Chart */}
-        <div style={{
-          background: '#ffffff',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
-          border: '1px solid #e5e7eb',
-          overflow: 'hidden',
-          transition: 'all 0.3s ease',
-          color: textColors.primary,
-        }}>
-          <div style={{
-            padding: '1.25rem 1.5rem',
-            borderBottom: '1px solid #e5e7eb',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <h3 style={{
-              margin: 0,
-              fontSize: '1.125rem',
-              fontWeight: '600',
-              color: textColors.primary,
-            }}>Sales Analysis</h3>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                onClick={() => setChartType('line')}
-                style={{
-                  background: chartType === 'line' ? '#4f46e5' : 'transparent',
-                  color: chartType === 'line' ? '#ffffff' : textColors.secondary,
-                  border: '1px solid',
-                  borderColor: chartType === 'line' ? '#4f46e5' : '#e5e7eb',
-                  borderRadius: '6px',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                Line
-              </button>
-              <button
-                onClick={() => setChartType('bar')}
-                style={{
-                  background: chartType === 'bar' ? '#4f46e5' : 'transparent',
-                  color: chartType === 'bar' ? '#ffffff' : textColors.secondary,
-                  border: '1px solid',
-                  borderColor: chartType === 'bar' ? '#4f46e5' : '#e5e7eb',
-                  borderRadius: '6px',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                Bar
-              </button>
-              <button 
-                onClick={downloadSalesDataCSV}
-                style={{
-                  background: 'transparent',
-                  color: textColors.secondary,
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem',
-                  transition: 'all 0.2s',
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.background = '#f9fafb';
-                  e.target.style.borderColor = '#d1d5db';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.background = 'transparent';
-                  e.target.style.borderColor = '#e5e7eb';
-                }}
-              >
-                <FiDownload size={14} />
-                <span>Export</span>
-              </button>
-            </div>
-          </div>
+        <div className="card">
           <div className="card-header">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3>Sales Analysis</h3>
@@ -712,7 +452,7 @@ const AdminDashboard = () => {
               </div>
             </div>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
+          <div className="card-body">
             {salesByMonth.length > 0 ? (
               <div style={{
                 height: '300px',
@@ -727,15 +467,15 @@ const AdminDashboard = () => {
                         {
                           label: 'Sales Revenue',
                           data: salesByMonth.map(item => item.sales),
-                          borderColor: '#2563eb',
-                          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                          borderColor: '#6366f1',  // Indigo-500 (primary)
+                          backgroundColor: 'rgba(99, 102, 241, 0.1)',
                           tension: 0.1,
                           fill: true,
                         },
                         salesByMonth[0] && salesByMonth[0].orders !== undefined ? {
                           label: 'Total Orders',
                           data: salesByMonth.map(item => item.orders),
-                          borderColor: '#10b981',
+                          borderColor: '#10b981',  // Emerald-500 (secondary)
                           backgroundColor: 'rgba(16, 185, 129, 0.1)',
                           tension: 0.1,
                           fill: true,
@@ -781,14 +521,14 @@ const AdminDashboard = () => {
                         {
                           label: 'Sales Revenue',
                           data: salesByMonth.map(item => item.sales),
-                          backgroundColor: '#2563eb',
-                          borderColor: '#2563eb',
+                          backgroundColor: '#6366f1',  // Indigo-500 (primary)
+                          borderColor: '#6366f1',
                           borderWidth: 1,
                         },
                         salesByMonth[0] && salesByMonth[0].orders !== undefined ? {
                           label: 'Total Orders',
                           data: salesByMonth.map(item => item.orders),
-                          backgroundColor: '#10b981',
+                          backgroundColor: '#10b981',  // Emerald-500 (secondary)
                           borderColor: '#10b981',
                           borderWidth: 1,
                         } : null,
@@ -828,25 +568,9 @@ const AdminDashboard = () => {
                 )}
               </div>
             ) : (
-              <div style={{ 
-                height: '300px', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                background: 'rgba(243, 244, 246, 0.7)',
-                borderRadius: '8px',
-                border: '1px dashed #e5e7eb',
-              }}>
-                <FiTrendingUp size={48} color={textColors.light} style={{ marginBottom: '1rem', opacity: 0.7 }} />
-                <p style={{ 
-                  color: textColors.secondary,
-                  margin: 0,
-                  fontSize: '0.9375rem',
-                  textAlign: 'center',
-                  maxWidth: '300px',
-                  lineHeight: '1.5',
-                }}>
+              <div className="text-center" style={{ padding: '2rem 0' }}>
+                <FiTrendingUp size={48} color="var(--gray-400)" style={{ marginBottom: '1rem' }} />
+                <p style={{ color: 'var(--gray-500)' }}>
                   No sales data available for charting. Data will appear here once available.
                 </p>
               </div>
@@ -855,28 +579,11 @@ const AdminDashboard = () => {
         </div>
 
         {/* Category Distribution */}
-        <div style={{
-          background: '#ffffff',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          borderRadius: '12px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06)',
-          border: '1px solid #e5e7eb',
-          overflow: 'hidden',
-          transition: 'all 0.3s ease',
-          color: textColors.primary,
-        }}>
-          <div style={{
-            padding: '1.25rem 1.5rem',
-            borderBottom: '1px solid #e5e7eb',
-          }}>
-            <h3 style={{
-              margin: 0,
-              fontSize: '1.125rem',
-              fontWeight: '600',
-              color: textColors.primary,
-            }}>Sales by Category</h3>
+        <div className="card">
+          <div className="card-header">
+            <h3>Sales by Category</h3>
           </div>
-          <div style={{ padding: '1.25rem 1.5rem' }}>
+          <div className="card-body">
             {salesByCategory.length > 0 ? (
               <div style={{
                 height: '300px',
@@ -890,22 +597,17 @@ const AdminDashboard = () => {
                       {
                         data: salesByCategory.map(item => item.value),
                         backgroundColor: [
-                          '#2563eb',
-                          '#10b981',
-                          '#f59e0b',
-                          '#ef4444',
-                          '#8b5cf6',
-                          '#06b6d4',
+                          '#6366f1',  // Indigo-500 (primary)
+                          '#10b981',  // Emerald-500 (secondary)
+                          '#f59e0b',  // Amber-500 (accent)
+                          '#f43f5e',  // Rose-500 (danger)
+                          '#818cf8',  // Indigo-400 (primary-light)
+                          '#34d399',  // Emerald-400 (secondary-light)
                         ],
-                        borderColor: [
-                          '#1e40af',
-                          '#047857',
-                          '#d97706',
-                          '#dc2626',
-                          '#7c3aed',
-                          '#0891b2',
-                        ],
-                        borderWidth: 2,
+                        borderColor: '#ffffff',  // White borders for clean separation
+                        borderWidth: 3,
+                        hoverOffset: 8,  // Modern hover effect
+                        hoverBorderWidth: 4,
                       },
                     ],
                   }}
@@ -913,44 +615,55 @@ const AdminDashboard = () => {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                    legend: {
+                      legend: {
                         position: 'right',
                         labels: {
-                          boxWidth: 20,
-                          padding: 15,
+                          boxWidth: 15,
+                          padding: 12,
+                          font: {
+                            size: 13,
+                            family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                            weight: '500',
+                          },
+                          color: '#1e293b',
+                          usePointStyle: true,
+                          pointStyle: 'circle',
                         }
                       },
-                    tooltip: {
+                      tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#475569',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true,
+                        boxWidth: 12,
+                        boxHeight: 12,
+                        boxPadding: 6,
+                        usePointStyle: true,
                         callbacks: {
                           label: function(context) {
-                            return formatPrice(context.parsed);
+                            const label = context.label || '';
+                            const value = formatPrice(context.parsed);
+                            return ` ${label}: ${value}`;
                           }
                         }
                       }
-                    }
+                    },
+                    animation: {
+                      animateRotate: true,
+                      animateScale: true,
+                      duration: 1000,
+                      easing: 'easeInOutQuart',
+                    },
                   }}
                 />
               </div>
             ) : (
-              <div style={{ 
-                height: '300px', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                background: 'rgba(243, 244, 246, 0.7)',
-                borderRadius: '8px',
-                border: '1px dashed #e5e7eb',
-              }}>
-                <FiBarChart2 size={48} color={textColors.light} style={{ marginBottom: '1rem', opacity: 0.7 }} />
-                <p style={{ 
-                  color: textColors.secondary,
-                  margin: 0,
-                  fontSize: '0.9375rem',
-                  textAlign: 'center',
-                  maxWidth: '300px',
-                  lineHeight: '1.5',
-                }}>
+              <div className="text-center" style={{ padding: '2rem 0' }}>
+                <FiBarChart2 size={48} color="var(--gray-400)" style={{ marginBottom: '1rem' }} />
+                <p style={{ color: 'var(--gray-500)' }}>
                   No category data available. Data will appear here once available.
                 </p>
               </div>

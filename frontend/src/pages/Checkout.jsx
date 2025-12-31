@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiTruck, FiLock, FiCheck, FiDollarSign, FiCreditCard, FiShield } from 'react-icons/fi';
+import { FiTruck, FiLock, FiCheck, FiDollarSign, FiCreditCard, FiShield, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
 import { useAuth } from '../context/authContext';
 import { api } from '../utils/api';
@@ -125,7 +125,8 @@ const Checkout = () => {
 
       // Create order after successful payment
       const orderData = {
-        products: cartItems.map(item => ({
+        products: cartItems.map((item, index) => ({
+          key: `${item.productId || item.id || item._id}-${index}`,
           product: item.productId || item.id || item._id,
           quantity: item.quantity || 1
         })),
@@ -177,7 +178,8 @@ const Checkout = () => {
       } else if (paymentMethod === 'cod') {
         // Handle COD order
         const orderData = {
-          products: cartItems.map(item => ({
+          products: cartItems.map((item, index) => ({
+            key: `${item.productId || item.id || item._id}-${index}`,
             product: item.productId || item.id || item._id,
             quantity: item.quantity || 1,
             price: item.price,
@@ -209,37 +211,101 @@ const Checkout = () => {
     }
   };
 
-  // Redirect if cart is empty
-  if (cartItems.length === 0 && !orderPlaced) {
-    navigate('/cart');
-    return null;
-  }
+  useEffect(() => {
+    if (cartItems.length === 0 && !orderPlaced) {
+      navigate('/cart');
+    }
+  }, [cartItems.length, orderPlaced, navigate]);
 
   // Success screen
   if (orderPlaced) {
     return (
       <div className="container" style={{ padding: '2rem 0' }}>
         <div className="text-center" style={{ padding: '4rem 0' }}>
-          <div className="card" style={{ maxWidth: '500px', margin: '0 auto' }}>
-            <div className="card-body">
-              <FiCheck size={64} color="var(--success)" style={{ marginBottom: '2rem' }} />
-              <h1 style={{ color: 'var(--success)', marginBottom: '1rem' }}>
+          <div className="card" style={{ 
+            maxWidth: '500px', 
+            margin: '0 auto',
+            background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+            border: 'none',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.2)'
+          }}>
+            <div className="card-body" style={{ padding: '3rem 2rem' }}>
+              <div style={{
+                width: '100px',
+                height: '100px',
+                margin: '0 auto 2rem',
+                background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)'
+              }}>
+                <FiCheck size={48} color="white" />
+              </div>
+              <h1 style={{ 
+                color: '#059669', 
+                marginBottom: '1rem',
+                fontSize: '2rem',
+                fontWeight: '700'
+              }}>
                 Order Placed Successfully!
               </h1>
-              <p style={{ color: 'var(--gray-600)', marginBottom: '2rem' }}>
+              <p style={{ 
+                color: '#1f2937', 
+                marginBottom: '2rem',
+                fontSize: '1.125rem',
+                lineHeight: '1.6'
+              }}>
                 Thank you for your purchase. You will receive an order confirmation email shortly.
                 {paymentMethod === 'cod' && ' Payment will be collected upon delivery.'}
               </p>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={() => navigate('/dashboard')}
                   className="btn btn-primary"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '0.875rem 2rem',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+                  }}
                 >
                   View Orders
                 </button>
                 <button
                   onClick={() => navigate('/products')}
                   className="btn btn-secondary"
+                  style={{
+                    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '0.875rem 2rem',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    boxShadow: '0 8px 20px rgba(79, 172, 254, 0.3)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-3px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(79, 172, 254, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 8px 20px rgba(79, 172, 254, 0.3)';
+                  }}
                 >
                   Continue Shopping
                 </button>
@@ -253,7 +319,39 @@ const Checkout = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 0' }}>
-      <h1 style={{ marginBottom: '2rem' }}>Checkout</h1>
+      {/* Header Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        padding: '2rem',
+        marginBottom: '2rem',
+        color: 'white',
+        boxShadow: '0 10px 25px rgba(102, 126, 234, 0.3)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h1 style={{ 
+            margin: '0 0 0.5rem 0', 
+            fontSize: '2rem', 
+            fontWeight: '700',
+            color: 'white'
+          }}>Checkout</h1>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+            Complete your order in just a few steps
+          </p>
+        </div>
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          right: '-50px',
+          width: '200px',
+          height: '200px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
+      </div>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-3" style={{ gap: '2rem', alignItems: 'start' }}>
@@ -261,11 +359,18 @@ const Checkout = () => {
           <div style={{ gridColumn: '1 / 3', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             
             {/* Shipping Information */}
-            <div className="card">
-              <div className="card-header">
+            <div className="card" style={{
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div className="card-header" style={{
+                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                color: 'white',
+                borderBottom: 'none'
+              }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FiTruck />
-                  <h3>Shipping Information</h3>
+                  <FiTruck size={20} color="white" />
+                  <h3 style={{ margin: 0, color: 'white' }}>Shipping Information</h3>
                 </div>
               </div>
               <div className="card-body">
@@ -378,7 +483,7 @@ const Checkout = () => {
                         checked={formData.shippingMethod === 'standard'}
                         onChange={handleInputChange}
                       />
-                      Standard (5-7 days) - {subtotal > 50 ? 'Free' : '$9.99'}
+                      Standard (5-7 days) - {subtotal > 50 ? 'Free' : '₹499'}
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <input
@@ -388,7 +493,7 @@ const Checkout = () => {
                         checked={formData.shippingMethod === 'express'}
                         onChange={handleInputChange}
                       />
-                      Express (2-3 days) - $19.99
+                      Express (2-3 days) - ₹999
                     </label>
                   </div>
                 </div>
@@ -396,12 +501,19 @@ const Checkout = () => {
             </div>
 
             {/* Payment Method */}
-            <div className="card">
-              <div className="card-header">
+            <div className="card" style={{
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div className="card-header" style={{
+                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                color: 'white',
+                borderBottom: 'none'
+              }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <FiDollarSign />
-                  <h3>Payment Method</h3>
-                  <FiLock size={16} color="var(--success)" />
+                  <FiDollarSign size={20} color="white" />
+                  <h3 style={{ margin: 0, color: 'white' }}>Payment Method</h3>
+                  <FiLock size={16} color="white" style={{ marginLeft: 'auto' }} />
                 </div>
               </div>
               <div className="card-body">
@@ -548,16 +660,28 @@ const Checkout = () => {
 
           {/* Right Column - Order Summary */}
           <div>
-            <div className="card" style={{ position: 'sticky', top: '2rem' }}>
-              <div className="card-header">
-                <h3>Order Summary</h3>
+            <div className="card" style={{ 
+              position: 'sticky', 
+              top: '2rem',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div className="card-header" style={{
+                background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                color: 'white',
+                borderBottom: 'none'
+              }}>
+                <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <FiShoppingCart size={20} color="white" />
+                  Order Summary
+                </h3>
               </div>
               <div className="card-body">
                 {/* Cart Items */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                  {cartItems.map((item) => (
+                  {cartItems.map((item, index) => (
                     <div
-                      key={item.id || item._id}
+                      key={item.id || item._id || `item-${index}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -633,6 +757,38 @@ const Checkout = () => {
                   type="submit"
                   className="btn btn-primary btn-full btn-lg"
                   disabled={loading}
+                  style={{
+                    background: loading 
+                      ? '#e5e7eb' 
+                      : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    color: loading ? '#9ca3af' : 'white',
+                    padding: '1rem 2rem',
+                    borderRadius: '12px',
+                    fontWeight: '600',
+                    fontSize: '1.125rem',
+                    boxShadow: loading 
+                      ? 'none' 
+                      : '0 8px 20px rgba(102, 126, 234, 0.3)',
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: loading ? 'not-allowed' : 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+                    }
+                  }}
                 >
                   {loading ? (
                     'Processing...'

@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiShoppingBag, FiTruck, FiShield, FiHeadphones } from 'react-icons/fi';
+import { 
+  FiShoppingBag, 
+  FiTruck, 
+  FiShield, 
+  FiHeadphones,
+  FiArrowRight
+} from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
 import { api } from '../utils/api';
 import Carousel from '../components/Carousel';
+import '../styles/home.css';
 
 const Home = () => {
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -86,59 +93,71 @@ const Home = () => {
       />
 
       {/* Features */}
-      <section style={{ padding: '4rem 0', backgroundColor: 'var(--gray-50)' }} className="py-16 bg-slate-50/60">
+      <section className="features-section">
         <div className="container">
-          <div className="grid grid-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="text-center card p-6 shadow-sm hover:shadow-lg transition-shadow rounded-xl">
-              <FiTruck size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-              <h3 className="text-lg font-semibold">Free Shipping</h3>
-              <p className="text-slate-600">Free shipping on orders over $50</p>
+          <div className="features-grid">
+            <div className="feature-card feature-card-1">
+              <div className="feature-icon">
+                <FiTruck size={32} />
+              </div>
+              <h3>Free Shipping</h3>
+              <p>Free shipping on orders over ₹2,500</p>
             </div>
-            <div className="text-center card p-6 shadow-sm hover:shadow-lg transition-shadow rounded-xl">
-              <FiShield size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-              <h3 className="text-lg font-semibold">Secure Payment</h3>
-              <p className="text-slate-600">100% secure payment processing</p>
+            <div className="feature-card feature-card-2">
+              <div className="feature-icon">
+                <FiShield size={32} />
+              </div>
+              <h3>Secure Payment</h3>
+              <p>100% secure payment processing</p>
             </div>
-            <div className="text-center card p-6 shadow-sm hover:shadow-lg transition-shadow rounded-xl">
-              <FiHeadphones size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-              <h3 className="text-lg font-semibold">24/7 Support</h3>
-              <p className="text-slate-600">Round-the-clock customer support</p>
+            <div className="feature-card feature-card-3">
+              <div className="feature-icon">
+                <FiHeadphones size={32} />
+              </div>
+              <h3>24/7 Support</h3>
+              <p>Round-the-clock customer support</p>
             </div>
-            <div className="text-center card p-6 shadow-sm hover:shadow-lg transition-shadow rounded-xl">
-              <FiShoppingBag size={48} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-              <h3 className="text-lg font-semibold">Easy Returns</h3>
-              <p className="text-slate-600">30-day hassle-free returns</p>
+            <div className="feature-card feature-card-4">
+              <div className="feature-icon">
+                <FiShoppingBag size={32} />
+              </div>
+              <h3>Easy Returns</h3>
+              <p>30-day hassle-free returns</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Categories */}
-      <section style={{ padding: '4rem 0' }} className="py-16">
+      <section className="categories-section">
         <div className="container">
-          <div className="text-center" style={{ marginBottom: '3rem' }}>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Shop by Category</h2>
-            <p className="text-slate-600 mt-2">Find exactly what you're looking for</p>
+          <div className="section-header">
+            <h2>Shop by Category</h2>
+            <p>Find exactly what you're looking for</p>
           </div>
 
-          <div className="grid grid-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="categories-grid">
             {categories.map((category) => (
               <Link
                 key={category.name}
                 to={category.link}
-                className="card group overflow-hidden rounded-xl hover:border-primary transition-colors"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                className="category-card"
               >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/300x200?text=Category';
-                  }}
-                />
-                <div className="card-body text-center p-4">
-                  <h3 className="text-base font-semibold">{category.name}</h3>
+                <div className="category-image-container">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="category-image"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/300x200?text=Category';
+                    }}
+                  />
+                </div>
+                <div className="category-info">
+                  <h3>{category.name}</h3>
+                  <span className="shop-now">
+                    Shop now <FiArrowRight />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -147,51 +166,107 @@ const Home = () => {
       </section>
 
       {/* Featured Products */}
-      <section style={{ padding: '4rem 0', backgroundColor: 'var(--gray-50)' }} className="py-16 bg-slate-50">
+      <section className="featured-products">
         <div className="container">
-          <div className="text-center" style={{ marginBottom: '3rem' }}>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Featured Products</h2>
-            <p className="text-slate-600 mt-2">Our top-rated products loved by customers</p>
+          <div className="section-header">
+            <h2>Featured Products</h2>
+            <p>Our top-rated products loved by customers</p>
           </div>
 
           {loading ? (
-            <div className="loading flex justify-center">
+            <div className="products-loading">
               <div className="spinner"></div>
             </div>
           ) : (
-            <div className="grid grid-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="products-grid">
               {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
 
-          <div className="text-center" style={{ marginTop: '3rem' }}>
-            <Link to="/products" className="btn btn-primary btn-lg inline-flex items-center">
+          <div className="text-center">
+            <Link to="/products" className="btn-view-all">
               Explore All Products
+              <FiArrowRight className="ml-2" />
             </Link>
           </div>
         </div>
       </section>
 
       {/* Newsletter */}
-      <section style={{ padding: '4rem 0', backgroundColor: 'var(--primary)', color: 'white' }} className="py-16 bg-[var(--primary)] text-white">
-        <div className="container text-center">
-          <h2 className="text-2xl md:text-3xl font-bold">Stay Updated</h2>
-          <p style={{ marginBottom: '2rem', opacity: 0.9 }} className="mt-2 opacity-90">
+      <section style={{ 
+        padding: '4rem 0', 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        position: 'relative',
+        overflow: 'hidden'
+      }} className="py-16 text-white">
+        <div style={{
+          position: 'absolute',
+          top: '-100px',
+          right: '-100px',
+          width: '300px',
+          height: '300px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: 'absolute',
+          bottom: '-80px',
+          left: '-80px',
+          width: '250px',
+          height: '250px',
+          background: 'rgba(255, 255, 255, 0.08)',
+          borderRadius: '50%',
+          zIndex: 0
+        }}></div>
+        <div className="container text-center" style={{ position: 'relative', zIndex: 1 }}>
+          <h2 className="text-2xl md:text-3xl font-bold" style={{ marginBottom: '1rem' }}>Stay Updated</h2>
+          <p style={{ marginBottom: '2rem', opacity: 0.9, fontSize: '1.125rem' }} className="mt-2 opacity-90">
             Subscribe to our newsletter for the latest deals and product updates
           </p>
           <form
-            style={{ display: 'flex', justifyContent: 'center', gap: '1rem', maxWidth: '400px', margin: '0 auto' }}
+            style={{ display: 'flex', justifyContent: 'center', gap: '1rem', maxWidth: '500px', margin: '0 auto' }}
             onSubmit={(e) => e.preventDefault()}
           >
             <input
               type="email"
               placeholder="Enter your email"
               className="form-input rounded-md"
-              style={{ flex: 1 }}
+              style={{ 
+                flex: 1,
+                padding: '0.875rem 1.25rem',
+                borderRadius: '12px',
+                border: 'none',
+                fontSize: '1rem',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              }}
             />
-            <button type="submit" className="btn btn-secondary">
+            <button 
+              type="submit" 
+              className="btn btn-secondary"
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                padding: '0.875rem 2rem',
+                borderRadius: '12px',
+                fontWeight: '600',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
               Subscribe
             </button>
           </form>

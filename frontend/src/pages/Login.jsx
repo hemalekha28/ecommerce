@@ -36,30 +36,47 @@ const Login = () => {
       if (result.success) {
         navigate(from, { replace: true });
       } else {
-        setError(result.error);
+        setError(result.message || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      console.error('Login error:', err);
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container" style={{ maxWidth: '400px', margin: '4rem auto', padding: '2rem' }}>
-      <div className="card">
-        <div className="card-body">
-          <div className="text-center" style={{ marginBottom: '2rem' }}>
-            <h1>Welcome Back</h1>
-            <p style={{ color: 'var(--gray-600)' }}>
-              Sign in to your {userRole} account
-            </p>
-          </div>
+    <div className="container" style={{ maxWidth: '450px', margin: '4rem auto', padding: '2rem' }}>
+      <div className="card" style={{
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+        border: '1px solid #e5e7eb',
+        borderRadius: '16px',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          padding: '2rem',
+          color: 'white',
+          textAlign: 'center'
+        }}>
+          <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '2rem', fontWeight: '700', color: 'white' }}>Welcome Back</h1>
+          <p style={{ margin: 0, opacity: 0.9, fontSize: '1rem' }}>
+            Sign in to your {userRole} account
+          </p>
+        </div>
+        <div className="card-body" style={{ padding: '2rem' }}>
 
           {/* Demo Credentials Info */}
-          <div className="alert alert-warning" style={{ marginBottom: '1.5rem' }}>
-            <h4>Demo Credentials:</h4>
-            <div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+          <div style={{ 
+            marginBottom: '1.5rem',
+            padding: '1rem',
+            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+            borderRadius: '12px',
+            border: '1px solid #fbbf24'
+          }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '1rem' }}>Demo Credentials:</h4>
+            <div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#78350f' }}>
               <strong>User:</strong> user@example.com / user123<br/>
               <strong>Admin:</strong> admin@example.com / admin123
             </div>
@@ -152,6 +169,35 @@ const Login = () => {
               type="submit"
               className="btn btn-primary btn-full btn-lg"
               disabled={loading}
+              style={{
+                background: loading 
+                  ? '#e5e7eb' 
+                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: 'none',
+                color: loading ? '#9ca3af' : 'white',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '1.125rem',
+                boxShadow: loading 
+                  ? 'none' 
+                  : '0 8px 20px rgba(102, 126, 234, 0.3)',
+                transition: 'all 0.3s ease',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(102, 126, 234, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)';
+                }
+              }}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
