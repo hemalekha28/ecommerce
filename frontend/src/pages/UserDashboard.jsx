@@ -4,6 +4,7 @@ import { FiUser, FiShoppingCart, FiHeart, FiPackage, FiEdit, FiEye, FiMessageSqu
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/cartContext';
+import { useWishlist } from '../context/wishlistContext';
 import { api } from "../utils/api";
 import { formatPrice, formatDate, getStatusColor } from '../utils/helpers';
 import Chatbot from '../components/Chatbot';
@@ -14,7 +15,8 @@ const MIN_REVIEW_LENGTH = 20;
 
 const UserDashboard = () => {
   const { user, updateProfile, setUser } = useAuth();
-  const { getCartItemsCount, wishlist } = useCart();
+  const { getCartItemsCount } = useCart();
+  const { wishlist } = useWishlist();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);

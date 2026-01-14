@@ -4,10 +4,11 @@ import { FiArrowLeft, FiShoppingCart, FiHeart, FiLoader, FiAlertCircle, FiMinus,
 import { useCart } from '../context/cartContext';
 import { useWishlist } from '../context/wishlistContext';
 import { useAuth } from '../context/authContext';
+import { useNotification } from '../context/notificationContext';
 import ProductImage from '../components/ProductImage';
 import StockBadge from '../components/StockBadge';
 import ReviewsSection from '../components/ReviewsSection';
-import SimpleNotification from '../components/NotificationToast';
+import { formatPrice } from '../utils/helpers';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -21,22 +22,10 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
-  const [notification, setNotification] = useState(null);
 
   const { cart, addToCart: addToCartContext, getItemQuantityInCart } = useCart();
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-
-  // Check if product is in wishlist
-  const isInWishlist = (productId) => {
-    return wishlist && wishlist.some(item => item._id === productId || item.id === productId);
-  };
-
-  // Show notification helper function
-  const showNotification = (message, type = 'success') => {
-    setNotification({ message, type });
-    // Auto-hide notification after 5 seconds
-    setTimeout(() => setNotification(null), 5000);
-  };
+  const { wishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { showSuccess, showError } = useNotification();
 
   // Single API call to fetch product data
   useEffect(() => {
@@ -117,10 +106,10 @@ const ProductDetail = () => {
         productId: productId
       }, quantity);
 
-      showNotification('Added to cart!', 'success');
+      showSuccess('Added to cart!');
     } catch (err) {
       console.error('Failed to add to cart:', err);
-      showNotification(err.message || 'Failed to add to cart', 'error');
+      showError(err.message || 'Failed to add to cart');
     }
   };
 
@@ -129,7 +118,7 @@ const ProductDetail = () => {
     if (!product) return;
 
     if (product.stock <= 0) {
-      showNotification('This product is out of stock', 'error');
+      showError('This product is out of stock');
       return;
     }
 
@@ -149,7 +138,7 @@ const ProductDetail = () => {
       });
     } catch (err) {
       console.error('Failed to process buy now:', err);
-      showNotification('Failed to process order', 'error');
+      showError('Failed to process order');
     } finally {
       setIsBuyingNow(false);
     }
@@ -213,7 +202,7 @@ const ProductDetail = () => {
 
           {/* Price and stock status */}
           <div className="product-price">
-            <span className="price-current">${product.price?.toFixed(2) || '0.00'}</span>
+            <span className="price-current">{formatPrice(product.price)}</span>
             <StockBadge stock={availableQuantity} />
           </div>
 
@@ -294,18 +283,17 @@ const ProductDetail = () => {
             <button
               className={`btn-wishlist ${isInWishlist(product?._id || product?.id) ? 'active' : ''}`}
               onClick={() => {
-                const productId = product?._id || product?.id;
-                if (!productId) {
-                  console.error('Cannot update wishlist: Invalid product ID');
-                  return;
+                const pid = product?._id || product?.id;
+                if (!pid) return;
+
+                const isCurrentlySaved = isInWishlist(pid);
+                if (isCurrentlySaved) {
+                  removeFromWishlist(pid);
+                  showSuccess('Removed from wishlist');
+                } else {
+                  addToWishlist(product);
+                  showSuccess('Added to wishlist');
                 }
-                isInWishlist(productId) ? removeFromWishlist(productId) : addToWishlist(product);
-                showNotification(
-                  isInWishlist(productId)
-                    ? 'Removed from wishlist'
-                    : 'Added to wishlist',
-                  'success'
-                );
               }}
             >
               <FiHeart
@@ -381,14 +369,6 @@ const ProductDetail = () => {
         </div>
       </div>
 
-      {/* Notification */}
-      {notification && (
-        <SimpleNotification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
     </div>
   );
 };

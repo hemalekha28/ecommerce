@@ -2,25 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
+import { useWishlist } from '../context/wishlistContext';
+import { useNotification } from '../context/notificationContext';
 import { formatPrice } from '../utils/helpers';
 import { constructImageUrl } from '../utils/imageUtils';
 
 const Wishlist = () => {
-  const { addToCart, removeFromWishlist, wishlist } = useCart();
+  const { addToCart } = useCart();
+  const { wishlist, removeFromWishlist } = useWishlist();
+  const { showSuccess, showInfo } = useNotification();
 
   // Helper function to get consistent product ID
   const getProductId = (product) => {
-    return product._id || product.id;
+    return product?._id || product?.id;
   };
 
-  const handleRemoveFromWishlist = (productId) => {
+  const handleRemoveFromWishlist = (productId, productName) => {
     removeFromWishlist(productId);
+    showInfo(`Removed "${productName}" from wishlist`);
   };
 
   const handleMoveToCart = (product) => {
     const productId = getProductId(product);
     addToCart(product);
     removeFromWishlist(productId);
+    showSuccess(`Moved "${product.name}" to cart`);
   };
 
   const handleAddToCart = (product) => {
@@ -281,7 +287,7 @@ const Wishlist = () => {
                     </button>
 
                     <button
-                      onClick={() => handleRemoveFromWishlist(productId)}
+                      onClick={() => handleRemoveFromWishlist(productId, product.name)}
                       className="btn btn-danger"
                       title="Remove from wishlist"
                       style={{

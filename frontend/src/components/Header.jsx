@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/cartContext';
+import { useWishlist } from '../context/wishlistContext';
 import { FiShoppingCart, FiHeart, FiUser, FiMenu, FiSearch, FiLogOut } from 'react-icons/fi';
 
 const Header = () => {
   const { user, logout } = useAuth();
-  const { getCartItemsCount, wishlist } = useCart();
+  const { getCartItemsCount } = useCart();
+  const { wishlist } = useWishlist();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -98,11 +100,11 @@ const Header = () => {
             }}>
               <FiHeart />
               {wishlist.length > 0 && (
-                <span 
-                  className="badge badge-danger" 
-                  style={{ 
-                    position: 'absolute', 
-                    top: '-8px', 
+                <span
+                  className="badge badge-danger"
+                  style={{
+                    position: 'absolute',
+                    top: '-8px',
                     right: '-8px',
                     minWidth: '20px',
                     height: '20px',
@@ -126,11 +128,11 @@ const Header = () => {
             }}>
               <FiShoppingCart />
               {getCartItemsCount() > 0 && (
-                <span 
-                  className="badge badge-primary" 
-                  style={{ 
-                    position: 'absolute', 
-                    top: '-8px', 
+                <span
+                  className="badge badge-primary"
+                  style={{
+                    position: 'absolute',
+                    top: '-8px',
                     right: '-8px',
                     minWidth: '20px',
                     height: '20px',
@@ -160,11 +162,11 @@ const Header = () => {
                   <FiUser />
                   <span>{user.name}</span>
                 </button>
-                
+
                 {showUserMenu && (
-                  <div 
-                    className="card" 
-                    style={{ 
+                  <div
+                    className="card"
+                    style={{
                       position: 'absolute',
                       top: '100%',
                       right: 0,
@@ -178,10 +180,10 @@ const Header = () => {
                         <div style={{ fontWeight: '600' }}>{user.name}</div>
                         <div style={{ fontSize: '0.875rem', color: 'var(--gray-500)' }}>{user.email}</div>
                       </div>
-                      
+
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        <Link 
-                          to="/dashboard" 
+                        <Link
+                          to="/dashboard"
                           className="btn btn-secondary btn-sm"
                           onClick={() => setShowUserMenu(false)}
                           style={{ justifyContent: 'flex-start' }}

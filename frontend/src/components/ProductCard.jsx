@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiShoppingCart, FiHeart, FiStar, FiCheck, FiBarChart2 } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
+import { useWishlist } from '../context/wishlistContext';
+import { useNotification } from '../context/notificationContext';
 import { useCompare } from '../context/compareContext';
 import { formatPrice } from '../utils/helpers';
 import Image from '../components/Image';
@@ -17,12 +19,14 @@ const FallbackImage = () => (
 );
 
 const ProductCard = ({ product, showActions = true }) => {
-  const { addToCart, wishlist, addToWishlist, removeFromWishlist, isInCart, getItemQuantityInCart } = useCart();
+  const { addToCart, isInCart, getItemQuantityInCart } = useCart();
+  const { wishlist, addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { showSuccess, showInfo } = useNotification();
   const { addToCompare, isInCompare, removeFromCompare, canAddMore } = useCompare();
   const navigate = useNavigate();
 
   // Check if product is in wishlist
-  const isWishlisted = wishlist.some(item => item._id === product._id);
+  const isWishlisted = isInWishlist(product._id);
 
   // Check if product is in cart
   const inCart = isInCart(product._id);
@@ -51,8 +55,10 @@ const ProductCard = ({ product, showActions = true }) => {
     try {
       if (isWishlisted) {
         removeFromWishlist(product._id);
+        showInfo(`Removed "${product.name}" from wishlist`);
       } else {
         addToWishlist(product);
+        showSuccess(`Added "${product.name}" to wishlist!`);
       }
     } catch (error) {
       console.error('Error updating wishlist:', error);

@@ -62,12 +62,19 @@ const ProductManagement = () => {
     if (!image.trim()) return 'Image URL is required';
     if (!stock || parseInt(stock) < 0) return 'Valid stock quantity is required';
 
-    // Basic URL validation
-    try {
-      new URL(image);
-    } catch {
-      return 'Please enter a valid image URL';
+    // Basic URL validation - allow relative paths or filenames
+    if (image.trim() && !image.startsWith('http') && !image.startsWith('https') && !image.startsWith('/')) {
+      // It's likely a filename, which is fine
+    } else if (image.trim() && (image.startsWith('http') || image.startsWith('https'))) {
+      try {
+        new URL(image);
+      } catch {
+        return 'Please enter a valid image URL';
+      }
+    } else if (!image.trim()) {
+      return 'Image URL or filename is required';
     }
+
 
     return null;
   };

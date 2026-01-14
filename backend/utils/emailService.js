@@ -8,15 +8,19 @@ const createTransporter = () => {
       if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
         throw new Error('SMTP_USER and SMTP_PASS are required when using SMTP_HOST');
       }
-      
+
       console.log('Creating SMTP transporter with host:', process.env.SMTP_HOST);
+
+      // Sanitize password (Gmail app passwords often come with spaces which should be removed)
+      const sanitizedPass = process.env.SMTP_PASS ? process.env.SMTP_PASS.replace(/\s+/g, '') : '';
+
       return nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT || 587,
-        secure: process.env.SMTP_SECURE === 'true' || false, // true for 465, false for other ports
+        secure: process.env.SMTP_SECURE === 'true' || false,
         auth: {
           user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS
+          pass: sanitizedPass
         },
         tls: {
           rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false'
@@ -45,71 +49,93 @@ const createTransporter = () => {
 const sendOrderConfirmationEmail = async (userEmail, userName, orderDetails) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.MAIL_FROM || process.env.EMAIL_USER,
       to: userEmail,
-      subject: `Order Confirmation - Order #${orderDetails.orderId}`,
+      subject: `Order Confirmed - #${orderDetails.orderId} | Starlit & Co`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-            <h2 style="color: #28a745; margin: 0;">Order Confirmed!</h2>
-            <p style="margin: 10px 0 0 0; color: #6c757d;">Thank you for your order, ${userName}!</p>
-          </div>
-          
-          <div style="background-color: white; padding: 20px; border: 1px solid #dee2e6; border-radius: 8px;">
-            <h3 style="color: #343a40; margin-top: 0;">Order Details</h3>
-            <p><strong>Order ID:</strong> #${orderDetails.orderId}</p>
-            <p><strong>Order Date:</strong> ${new Date(orderDetails.orderDate).toLocaleDateString()}</p>
-            <p><strong>Payment Method:</strong> Cash on Delivery</p>
-            <p><strong>Total Amount:</strong> ₹${orderDetails.total}</p>
+        <!DOCTYPE html>
+        <html>
+        <body style="background-color: #f1f5f9; padding: 20px; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+          <div style="max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #edf2f7;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
+              <span style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; display: block;">Starlit & Co</span>
+              <h1 style="margin: 0; font-size: 26px; letter-spacing: 1px;">Order Confirmed!</h1>
+              <p style="opacity: 0.9; margin-top: 10px; font-size: 16px;">Order ID: #${orderDetails.orderId}</p>
+            </div>
             
-            <h4 style="color: #343a40; margin-top: 20px;">Items Ordered:</h4>
-            <div style="margin: 15px 0;">
-              ${orderDetails.items.map(item => `
-                <div style="display: flex; justify-content: space-between; padding: 10px; background-color: #f8f9fa; margin: 5px 0; border-radius: 4px;">
-                  <div>
-                    <strong>${item.name}</strong><br>
-                    <small>Quantity: ${item.quantity}</small>
+            <!-- Content -->
+            <div style="padding: 40px 30px;">
+              <p style="font-size: 1.2rem; margin-bottom: 20px;">Hi <strong>${userName}</strong>,</p>
+              <p style="color: #4a5568; line-height: 1.6; margin-bottom: 30px;">Your journey with <strong>Starlit & Co</strong> has officially begun! We've received your order and our team is already getting everything ready for you.</p>
+              
+              <!-- Billing Card -->
+              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                <span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: #ebf4ff; color: #3182ce; text-transform: uppercase; margin-bottom: 15px;">Billing Information</span>
+                
+                <h3 style="margin: 0 0 20px 0; color: #2d3748; font-size: 18px; border-bottom: 2px solid #f7fafc; padding-bottom: 10px;">Items Summary</h3>
+                
+                ${orderDetails.items.map(item => `
+                  <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f3f5;">
+                    <div style="max-width: 70%;">
+                      <div style="font-weight: 600; color: #2d3748;">${item.name}</div>
+                      <div style="font-size: 13px; color: #718096; margin-top: 4px;">Qty: ${item.quantity} × ₹${Number(item.price).toFixed(2)}</div>
+                    </div>
+                    <div style="font-weight: 700; color: #2d3748; white-space: nowrap;">₹${(item.price * item.quantity).toFixed(2)}</div>
                   </div>
-                  <div>₹${item.price * item.quantity}</div>
+                `).join('')}
+                
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 2px solid #edf2f7; display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 16px; font-weight: 600; color: #4a5568;">Grand Total</span>
+                  <span style="font-size: 22px; font-weight: 800; color: #764ba2;">₹${Number(orderDetails.total).toFixed(2)}</span>
                 </div>
-              `).join('')}
+              </div>
+              
+              <!-- Shipping Card -->
+              <div style="background: #f8fafc; border-radius: 12px; padding: 25px; border: 1px solid #e2e8f0;">
+                <h4 style="margin: 0 0 12px 0; color: #4a5568; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Shipping Destination</h4>
+                <p style="margin: 0; color: #4a5568; line-height: 1.6; font-size: 14px;">
+                  <strong style="color: #2d3748;">${userName}</strong><br>
+                  ${orderDetails.shippingAddress.address}<br>
+                  ${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.postalCode}<br>
+                  ${orderDetails.shippingAddress.country}
+                </p>
+              </div>
+              
+              <div style="margin-top: 40px; text-align: center;">
+                <p style="margin: 0; color: #718096; font-size: 14px;">
+                  Questions about your order? Reply to this email or visit our <a href="#" style="color: #764ba2; text-decoration: none; font-weight: 600;">Support Center</a>.
+                </p>
+              </div>
             </div>
             
-            <h4 style="color: #343a40; margin-top: 20px;">Shipping Address:</h4>
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px;">
-              <p style="margin: 0;">
-                ${orderDetails.shippingAddress.address}<br>
-                ${orderDetails.shippingAddress.city}, ${orderDetails.shippingAddress.postalCode}<br>
-                ${orderDetails.shippingAddress.country}
-              </p>
-            </div>
-            
-            <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 4px; margin-top: 20px;">
-              <h4 style="color: #856404; margin: 0 0 10px 0;">Important Information:</h4>
-              <ul style="color: #856404; margin: 0; padding-left: 20px;">
-                <li>Your order will be processed within 1-2 business days</li>
-                <li>You will receive another email when your order is shipped</li>
-                <li>Payment will be collected upon delivery</li>
-                <li>Please keep this email for your records</li>
-              </ul>
+            <!-- Footer -->
+            <div style="text-align: center; padding: 30px; font-size: 13px; color: #a0aec0; background: #f7fafc; border-top: 1px solid #edf2f7;">
+              <p style="margin: 0 0 10px 0;">Thank you for shopping with <strong>Starlit & Co</strong>.</p>
+              <div style="margin: 15px 0;">
+                <a href="#" style="margin: 0 10px; text-decoration: none; color: #a0aec0;">Facebook</a>
+                <a href="#" style="margin: 0 10px; text-decoration: none; color: #a0aec0;">Instagram</a>
+                <a href="#" style="margin: 0 10px; text-decoration: none; color: #a0aec0;">Twitter</a>
+              </div>
+              <p style="margin: 10px 0 0 0;">© 2026 Starlit & Co. All rights reserved.</p>
+              <p style="margin: 5px 0 0 0; font-size: 11px;">Annagar, Namakkal - 637213</p>
             </div>
           </div>
-          
-          <div style="text-align: center; margin-top: 20px; color: #6c757d;">
-            <p>Thank you for choosing our store!</p>
-            <p>If you have any questions, please contact our support team.</p>
-          </div>
-        </div>
+        </body>
+        </html>
       `
     };
 
+    console.log('Sending email...');
     const result = await transporter.sendMail(mailOptions);
+    console.log('Nodemailer response:', result.response);
     console.log('Order confirmation email sent successfully:', result.messageId);
     return result;
   } catch (error) {
-    console.error('Error sending order confirmation email:', error);
+    console.error('ERROR in sendOrderConfirmationEmail:', error.message);
+    console.error('Stack trace:', error.stack);
     throw error;
   }
 };
@@ -118,7 +144,7 @@ const sendOrderConfirmationEmail = async (userEmail, userName, orderDetails) => 
 const sendOrderStatusUpdateEmail = async (userEmail, userName, orderDetails, newStatus) => {
   try {
     const transporter = createTransporter();
-    
+
     const statusMessages = {
       'processing': 'Your order is being processed and will be shipped soon.',
       'shipped': 'Your order has been shipped and is on its way to you.',

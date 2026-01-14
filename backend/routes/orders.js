@@ -55,7 +55,7 @@ router.get('/', protect, async (req, res) => {
 router.get('/all', protect, async (req, res) => {
   try {
     const { status } = req.query;
-    
+
     // Build filter object
     const filter = {};
     if (status && status !== 'all') {
@@ -260,7 +260,7 @@ router.post('/', protect, [
     console.log('Products in request:', req.body.products);
     console.log('Products type:', typeof req.body.products);
     console.log('Products is array:', Array.isArray(req.body.products));
-    
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.log('Validation errors:', errors.array());
@@ -276,16 +276,24 @@ router.post('/', protect, [
     let total = 0;
     const orderProducts = [];
 
-    for (let item of products) {
+    console.log(`Processing ${products.length} products...`);
+    for (let i = 0; i < products.length; i++) {
+      const item = products[i];
+      console.log(`[${i + 1}/${products.length}] Finding product: ${item.product}`);
       const product = await Product.findById(item.product);
+
       if (!product) {
+        console.log(`❌ Product not found: ${item.product}`);
         return res.status(404).json({
           success: false,
           message: `Product not found: ${item.product}`
         });
       }
 
+      console.log(`✅ Found: ${product.name}. Stock: ${product.stock}, Requested: ${item.quantity}`);
+
       if (product.stock < item.quantity) {
+        console.log(`❌ Insufficient stock for: ${product.name}`);
         return res.status(400).json({
           success: false,
           message: `Insufficient stock for product: ${product.name}`
@@ -304,9 +312,12 @@ router.post('/', protect, [
 
       // Update product stock
       product.stock -= item.quantity;
+      console.log(`Updating stock for ${product.name} to ${product.stock}...`);
       await product.save();
+      console.log(`Stock updated for ${product.name}.`);
     }
 
+    console.log('Creating order in database...');
     const order = await Order.create({
       user: req.user._id,
       products: orderProducts,
@@ -315,8 +326,11 @@ router.post('/', protect, [
       status: 'pending' // Set default status
     });
 
+    console.log('Order created, ID:', order._id);
+    console.log('Populating order details...');
     await order.populate('products.product', 'name');
     await order.populate('user', 'name email');
+    console.log('Order populated. User email:', order.user?.email);
 
     // Transform order to match frontend expectations
     const transformedOrder = {
@@ -337,15 +351,40 @@ router.post('/', protect, [
       shippingAddress: order.shippingAddress
     };
 
+    console.log('Sending response to frontend...');
     res.status(201).json({
       success: true,
       data: { order: transformedOrder }
     });
+
+    // Send order confirmation email asynchronously
+    if (order.user && order.user.email) {
+      console.log('Attempting to send order confirmation email to:', order.user.email);
+      try {
+        const { sendOrderConfirmationEmail } = require('../utils/emailService');
+        await sendOrderConfirmationEmail(
+          order.user.email,
+          order.user.name,
+          {
+            orderId: order._id.toString().slice(-8),
+            orderDate: order.createdAt,
+            items: order.products,
+            total: order.total,
+            shippingAddress: order.shippingAddress
+          }
+        );
+        console.log('Email sending process completed (check email service logs for final status)');
+      } catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError);
+      }
+    } else {
+      console.log('No user email found, skipping confirmation email.');
+    }
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error('CRITICAL: Error in order creation process:', error);
     res.status(500).json({
       success: false,
-      message: 'Error creating order'
+      message: 'Error creating order: ' + error.message
     });
   }
 });

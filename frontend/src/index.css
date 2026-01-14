@@ -3592,28 +3592,46 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 5rem;
-  height: 5rem;
-  border-radius: 0.75rem;
-  border: 2px solid #d1d5db;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
   background: white;
+  color: #4b5563;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  color: #666666;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .btn-wishlist:hover {
   border-color: #f87171;
-  color: #dc2626;
-  background: #fef2f2;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  color: #ef4444;
+  background: #fff5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
+}
+
+.btn-wishlist:active {
+  transform: translateY(0);
 }
 
 .btn-wishlist.active {
-  background: #fef2f2;
-  border-color: #f87171;
-  color: #dc2626;
+  background: #fff5f5;
+  border-color: #fca5a5;
+  color: #ef4444;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+}
+
+.btn-wishlist svg {
+  font-size: 1.25rem;
+  transition: transform 0.3s ease;
+}
+
+.btn-wishlist.active svg {
+  transform: scale(1.1);
 }
 
 /* Utility Classes */

@@ -7,8 +7,10 @@ const { sendOrderConfirmationEmail } = require('../utils/emailService');
 const createRazorpayOrder = async (req, res) => {
   try {
     const { amount, currency = 'INR', receipt } = req.body;
+    console.log('Received order creation request:', { amount, currency, receipt });
 
-    if (!amount || isNaN(amount) || amount < 1) {
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+      console.error('Invalid amount received:', amount);
       return res.status(400).json({
         success: false,
         message: 'Valid amount is required',
@@ -16,21 +18,26 @@ const createRazorpayOrder = async (req, res) => {
     }
 
     // Convert amount to paise (smallest currency unit for INR)
-    const amountInPaise = Math.round(amount * 100);
+    // We use parseFloat to handle decimal values correctly before conversion
+    const amountInPaise = Math.round(parseFloat(amount) * 100);
+    console.log(`Converted amount ${amount} ${currency} to ${amountInPaise} paise`);
 
     const options = {
       amount: amountInPaise,
       currency,
       receipt: receipt || `order_${Date.now()}`,
-      payment_capture: 0, // Manual capture after verification
+      payment_capture: 1, // Auto-capture payment
     };
 
+    console.log('Creating Razorpay order with options:', options);
     const order = await razorpay.orders.create(options);
+    console.log('Razorpay order created successfully:', order.id);
 
     res.status(201).json({
       success: true,
       order,
     });
+
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
     res.status(500).json({
@@ -107,7 +114,7 @@ const verifyPayment = async (req, res) => {
 // Webhook handler for payment events
 const handleWebhook = async (req, res) => {
   const { event, payload } = req.body;
-  
+
   // Verify the webhook signature
   const generatedSignature = crypto
     .createHmac('sha256', process.env.RAZORPAY_WEBHOOK_SECRET)
@@ -121,7 +128,7 @@ const handleWebhook = async (req, res) => {
   try {
     if (event === 'payment.captured') {
       const { order_id, payment_id, status } = payload.payment.entity;
-      
+
       // Find and update the order
       const order = await Order.findOneAndUpdate(
         { 'paymentDetails.orderId': order_id },

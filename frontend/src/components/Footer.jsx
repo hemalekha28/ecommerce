@@ -66,15 +66,15 @@ const Footer = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FiMail size={16} />
-                <span>support@eshop.com</span>
+                <span>support@starlit&Co.com</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FiPhone size={16} />
-                <span>1-800-123-4567</span>
+                <span>+96989 66368</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FiMapPin size={16} />
-                <span>123 Shopping St, City, State 12345</span>
+                <span>StarLit & Co,Annagar,Namakkal-637213</span>
               </div>
             </div>
           </div>

@@ -13,10 +13,9 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
   const [notificationCallback, setNotificationCallback] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { user, token } = useAuth(); // Get user and token from auth context
 
   // API Base URL - adjust according to your backend
@@ -69,7 +68,7 @@ export const CartProvider = ({ children }) => {
     if (!user || !token) return;
 
     const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
-    
+
     if (localCart.length === 0) {
       // No local cart to sync, just load from DB
       await loadCartFromDB();
@@ -123,19 +122,7 @@ export const CartProvider = ({ children }) => {
     initializeCart();
   }, [user, token]);
 
-  // Load wishlist from localStorage (keeping this simple for now)
-  useEffect(() => {
-    try {
-      const savedWishlist = localStorage.getItem('wishlist');
-      if (savedWishlist) {
-        const parsedWishlist = JSON.parse(savedWishlist);
-        setWishlist(parsedWishlist);
-      }
-    } catch (error) {
-      console.error('Error loading wishlist from localStorage:', error);
-      localStorage.removeItem('wishlist');
-    }
-  }, []);
+
 
   // Save cart to localStorage when user is not logged in
   useEffect(() => {
@@ -148,14 +135,7 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems, user]);
 
-  // Save wishlist to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    } catch (error) {
-      console.error('Error saving wishlist to localStorage:', error);
-    }
-  }, [wishlist]);
+
 
   // Allow notification context to register its callback
   const registerNotificationCallback = (callback) => {
@@ -192,14 +172,14 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = async (product, quantity = 1) => {
     const productId = getProductId(product);
-    
+
     // Validate productId
     if (!productId || productId === 'undefined') {
       console.error('Invalid product ID for addToCart:', product);
       showNotification('Error adding item to cart - invalid product', 'error');
       return;
     }
-    
+
     if (user && token) {
       // User logged in - add to database
       setIsLoading(true);
@@ -229,13 +209,13 @@ export const CartProvider = ({ children }) => {
     } else {
       // User not logged in - use localStorage
       const existingItem = cartItems.find(item => getProductId(item) === productId);
-      
+
       if (existingItem) {
         showNotification(
           `"${product.name}" is already in your cart. Quantity updated from ${existingItem.quantity} to ${existingItem.quantity + quantity}.`,
           'warning'
         );
-        
+
         setCartItems(prevItems =>
           prevItems.map(item =>
             getProductId(item) === productId
@@ -249,9 +229,9 @@ export const CartProvider = ({ children }) => {
           id: productId,
           _id: productId
         };
-        
+
         setCartItems(prevItems => [...prevItems, { ...normalizedProduct, quantity }]);
-        
+
         showNotification(`"${product.name}" has been added to your cart!`, 'success');
       }
     }
@@ -264,7 +244,7 @@ export const CartProvider = ({ children }) => {
       showNotification('Error removing item from cart - invalid product ID', 'error');
       return;
     }
-    
+
     if (user && token) {
       // User logged in - remove from database
       setIsLoading(true);
@@ -286,11 +266,11 @@ export const CartProvider = ({ children }) => {
     } else {
       // User not logged in - remove from localStorage
       const itemToRemove = cartItems.find(item => getProductId(item) === productId);
-      
-      setCartItems(prevItems => 
+
+      setCartItems(prevItems =>
         prevItems.filter(item => getProductId(item) !== productId)
       );
-      
+
       if (itemToRemove) {
         showNotification(`"${itemToRemove.name}" has been removed from your cart.`, 'info');
       }
@@ -304,7 +284,7 @@ export const CartProvider = ({ children }) => {
       showNotification('Error updating cart - invalid product ID', 'error');
       return;
     }
-    
+
     if (newQuantity <= 0) {
       removeFromCart(productId);
       return;
@@ -315,7 +295,7 @@ export const CartProvider = ({ children }) => {
       setIsLoading(true);
       try {
         console.log('Updating cart item:', productId, 'to quantity:', newQuantity);
-        
+
         const result = await apiCall(`/cart/update/${productId}`, {
           method: 'PUT',
           body: JSON.stringify({ quantity: newQuantity }),
@@ -324,7 +304,7 @@ export const CartProvider = ({ children }) => {
         if (result.success && result.cart) {
           setCartItems(result.cart.items || []);
           // Find the item for notification
-          const item = result.cart.items.find(item => 
+          const item = result.cart.items.find(item =>
             (item.productId && item.productId.toString() === productId) ||
             (item._id && item._id.toString() === productId) ||
             (item.id && item.id.toString() === productId)
@@ -350,7 +330,7 @@ export const CartProvider = ({ children }) => {
               : item
           )
         );
-        
+
         showNotification(`"${item.name}" quantity updated to ${newQuantity}.`, 'info');
       }
     }
@@ -358,7 +338,7 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     const itemCount = cartItems.length;
-    
+
     if (user && token) {
       // User logged in - clear database
       setIsLoading(true);
@@ -385,7 +365,7 @@ export const CartProvider = ({ children }) => {
     } else {
       // User not logged in - clear localStorage
       setCartItems([]);
-      
+
       if (itemCount > 0) {
         showNotification(
           `Cart cleared! ${itemCount} ${itemCount === 1 ? 'item' : 'items'} removed.`,
@@ -393,74 +373,6 @@ export const CartProvider = ({ children }) => {
         );
       }
     }
-  };
-
-  // Wishlist functions (keeping these as localStorage for now)
-  const addToWishlist = (product) => {
-    const productId = getProductId(product);
-    
-    // Validate productId
-    if (!productId || productId === 'undefined') {
-      console.error('Invalid product ID for addToWishlist:', product);
-      showNotification('Error adding to wishlist - invalid product', 'error');
-      return;
-    }
-    
-    const exists = wishlist.find(item => getProductId(item) === productId);
-    
-    if (!exists) {
-      const normalizedProduct = {
-        ...product,
-        id: productId,
-        _id: productId
-      };
-      setWishlist(prev => [...prev, normalizedProduct]);
-      
-      showNotification(`"${product.name}" has been added to your wishlist!`, 'success');
-    } else {
-      showNotification(`"${product.name}" is already in your wishlist.`, 'warning');
-    }
-  };
-
-  const removeFromWishlist = (productId) => {
-    // Validate productId
-    if (!productId || productId === 'undefined') {
-      console.error('Invalid product ID for removeFromWishlist:', productId);
-      return;
-    }
-    
-    const itemToRemove = wishlist.find(item => getProductId(item) === productId);
-    
-    setWishlist(prev => 
-      prev.filter(item => getProductId(item) !== productId)
-    );
-    
-    if (itemToRemove) {
-      showNotification(`"${itemToRemove.name}" has been removed from your wishlist.`, 'info');
-    }
-  };
-
-  const isInWishlist = (productId) => {
-    if (!productId || productId === 'undefined') return false;
-    return wishlist.some(item => getProductId(item) === productId);
-  };
-
-  const moveToCart = (product) => {
-    const productId = getProductId(product);
-    
-    // Validate productId
-    if (!productId || productId === 'undefined') {
-      console.error('Invalid product ID for moveToCart:', product);
-      showNotification('Error moving to cart - invalid product', 'error');
-      return;
-    }
-    
-    addToCart(product);
-    setWishlist(prev => 
-      prev.filter(item => getProductId(item) !== productId)
-    );
-    
-    showNotification(`"${product.name}" moved from wishlist to cart!`, 'success');
   };
 
   const getCartTotal = () => {
@@ -484,17 +396,12 @@ export const CartProvider = ({ children }) => {
 
   const value = {
     cartItems,
-    wishlist,
     isLoading,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
-    addToWishlist,
-    removeFromWishlist,
-    isInWishlist,
     isInCart,
-    moveToCart,
     getCartTotal,
     getCartItemsCount,
     getItemQuantityInCart,

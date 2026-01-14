@@ -82,19 +82,27 @@ const Checkout = () => {
 
       // Create order on backend
       const orderResponse = await api.post('/payments/create-order', {
-        amount: Math.round(total * 100),
+        amount: total, // Send standard units, backend handles conversion to paise
         currency: 'INR',
         receipt: `order_rcpt_${Date.now()}`
       });
 
-      // Use Razorpay test key directly
+      console.log('Razorpay Order Response:', orderResponse.data);
+
+      if (!orderResponse.data || !orderResponse.data.order) {
+        throw new Error('Failed to create Razorpay order');
+      }
+
+      const razorpayOrder = orderResponse.data.order;
+
+      // Use Razorpay key from environment variables
       const options = {
-        key: 'rzp_test_RgPhDkqd6kwdDQ', // Your Razorpay test key
-        amount: orderResponse.data.amount,
-        currency: orderResponse.data.currency,
-        name: "Your E-Commerce Store",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_RgPhDkqd6kwdDQ',
+        amount: razorpayOrder.amount, // Already in paise from backend
+        currency: razorpayOrder.currency,
+        name: "Starlit & Co",
         description: "Order Payment",
-        order_id: orderResponse.data.id,
+        order_id: razorpayOrder.id,
         handler: handleRazorpaySuccess,
         prefill: {
           name: `${formData.firstName} ${formData.lastName}`.trim(),
@@ -102,15 +110,15 @@ const Checkout = () => {
           contact: formData.phone
         },
         theme: {
-          color: "#3399cc"
+          color: "#667eea"
         },
         modal: {
           ondismiss: () => {
             setLoading(false);
-            alert('Payment cancelled. Please try again.');
           }
         }
       };
+
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
