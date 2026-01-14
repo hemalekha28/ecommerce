@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FiTruck, FiLock, FiCheck, FiDollarSign, FiCreditCard, FiShield, FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
 import { useAuth } from '../context/authContext';
@@ -11,14 +11,22 @@ const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
 
+  // Check for Buy Now item
+  const buyNowItem = location.state?.buyNowItem;
+  const isBuyNow = !!buyNowItem;
+
+  // Use either buyNowItem (as an array) or cartItems
+  const checkoutItems = isBuyNow ? [buyNowItem] : cartItems;
+
   useEffect(() => {
-    console.log('Checkout component - Cart items:', cartItems);
-    console.log('Checkout component - Cart items length:', cartItems.length);
-  }, [cartItems]);
+    console.log('Checkout component - Checkout items:', checkoutItems);
+    console.log('Checkout component - Mode:', isBuyNow ? 'Buy Now' : 'Cart Checkout');
+  }, [checkoutItems, isBuyNow]);
 
   const [formData, setFormData] = useState({
     firstName: user?.name?.split(' ')[0] || '',
@@ -42,7 +50,10 @@ const Checkout = () => {
   };
 
   // Calculate totals
-  const subtotal = getCartTotal();
+  const subtotal = isBuyNow
+    ? (buyNowItem.price * buyNowItem.quantity)
+    : getCartTotal();
+
   const shipping = formData.shippingMethod === 'express' ? 19.99 : subtotal > 50 ? 0 : 9.99;
   const tax = subtotal * 0.08;
   const total = subtotal + shipping + tax;
@@ -60,7 +71,7 @@ const Checkout = () => {
   const handleRazorpayPayment = async () => {
     try {
       setLoading(true);
-      
+
       // Load Razorpay script
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
@@ -119,13 +130,13 @@ const Checkout = () => {
     try {
       // Log payment response for debugging
       console.log('Payment response:', paymentResponse);
-      
+
       // Skip verification for now
       console.log('Skipping payment verification for development');
 
       // Create order after successful payment
       const orderData = {
-        products: cartItems.map((item, index) => ({
+        products: checkoutItems.map((item, index) => ({
           key: `${item.productId || item.id || item._id}-${index}`,
           product: item.productId || item.id || item._id,
           quantity: item.quantity || 1
@@ -146,19 +157,22 @@ const Checkout = () => {
       // Create order
       const response = await api.post('/orders', orderData);
       console.log('Order created:', response.data);
-      
+
       // Clear cart and show success
-      clearCart();
+      // Clear cart only if it's not a direct buy now
+      if (!isBuyNow) {
+        clearCart();
+      }
       setOrderPlaced(true);
       setLoading(false);
-      
+
       // Redirect to order success page or show success message
       alert('Order placed successfully!');
       navigate('/orders');
     } catch (error) {
       console.error('Order creation failed:', error);
       setLoading(false);
-      alert('Payment was successful but there was an issue creating your order. Please contact support with payment ID: ' + 
+      alert('Payment was successful but there was an issue creating your order. Please contact support with payment ID: ' +
         (paymentResponse.razorpay_payment_id || 'N/A'));
     }
   };
@@ -178,7 +192,7 @@ const Checkout = () => {
       } else if (paymentMethod === 'cod') {
         // Handle COD order
         const orderData = {
-          products: cartItems.map((item, index) => ({
+          products: checkoutItems.map((item, index) => ({
             key: `${item.productId || item.id || item._id}-${index}`,
             product: item.productId || item.id || item._id,
             quantity: item.quantity || 1,
@@ -199,7 +213,9 @@ const Checkout = () => {
 
         const response = await api.createOrder(orderData);
         console.log('COD Order created:', response);
-        clearCart();
+        if (!isBuyNow) {
+          clearCart();
+        }
         setOrderPlaced(true);
       }
       // For Razorpay, the payment flow is handled by the RazorpayButton component
@@ -212,18 +228,18 @@ const Checkout = () => {
   };
 
   useEffect(() => {
-    if (cartItems.length === 0 && !orderPlaced) {
+    if (checkoutItems.length === 0 && !orderPlaced) {
       navigate('/cart');
     }
-  }, [cartItems.length, orderPlaced, navigate]);
+  }, [checkoutItems.length, orderPlaced, navigate]);
 
   // Success screen
   if (orderPlaced) {
     return (
       <div className="container" style={{ padding: '2rem 0' }}>
         <div className="text-center" style={{ padding: '4rem 0' }}>
-          <div className="card" style={{ 
-            maxWidth: '500px', 
+          <div className="card" style={{
+            maxWidth: '500px',
             margin: '0 auto',
             background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
             border: 'none',
@@ -243,16 +259,16 @@ const Checkout = () => {
               }}>
                 <FiCheck size={48} color="white" />
               </div>
-              <h1 style={{ 
-                color: '#059669', 
+              <h1 style={{
+                color: '#059669',
                 marginBottom: '1rem',
                 fontSize: '2rem',
                 fontWeight: '700'
               }}>
                 Order Placed Successfully!
               </h1>
-              <p style={{ 
-                color: '#1f2937', 
+              <p style={{
+                color: '#1f2937',
                 marginBottom: '2rem',
                 fontSize: '1.125rem',
                 lineHeight: '1.6'
@@ -331,9 +347,9 @@ const Checkout = () => {
         overflow: 'hidden'
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ 
-            margin: '0 0 0.5rem 0', 
-            fontSize: '2rem', 
+          <h1 style={{
+            margin: '0 0 0.5rem 0',
+            fontSize: '2rem',
             fontWeight: '700',
             color: 'white'
           }}>Checkout</h1>
@@ -357,7 +373,7 @@ const Checkout = () => {
         <div className="grid grid-3" style={{ gap: '2rem', alignItems: 'start' }}>
           {/* Left Column - Forms */}
           <div style={{ gridColumn: '1 / 3', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            
+
             {/* Shipping Information */}
             <div className="card" style={{
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
@@ -518,27 +534,27 @@ const Checkout = () => {
               </div>
               <div className="card-body">
                 <div style={{ marginBottom: '1rem' }}>
-                  
+
                   {/* Cash on Delivery */}
-                  <div 
+                  <div
                     onClick={() => setPaymentMethod('cod')}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '1rem', 
-                      padding: '1rem', 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '1rem',
                       backgroundColor: paymentMethod === 'cod' ? 'rgba(16, 185, 129, 0.1)' : '#f9fafb',
-                      border: `2px solid ${paymentMethod === 'cod' ? '#10b981' : '#e5e7eb'}`, 
+                      border: `2px solid ${paymentMethod === 'cod' ? '#10b981' : '#e5e7eb'}`,
                       borderRadius: '8px',
                       marginBottom: '1rem',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <div style={{ 
-                      width: '20px', 
-                      height: '20px', 
-                      borderRadius: '50%', 
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
                       border: `2px solid ${paymentMethod === 'cod' ? '#10b981' : '#9ca3af'}`,
                       display: 'flex',
                       alignItems: 'center',
@@ -546,18 +562,18 @@ const Checkout = () => {
                       flexShrink: 0
                     }}>
                       {paymentMethod === 'cod' && (
-                        <div style={{ 
-                          width: '12px', 
-                          height: '12px', 
-                          borderRadius: '50%', 
-                          backgroundColor: '#10b981' 
+                        <div style={{
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '50%',
+                          backgroundColor: '#10b981'
                         }} />
                       )}
                     </div>
                     <FiDollarSign size={24} color={paymentMethod === 'cod' ? '#10b981' : '#6b7280'} />
                     <div>
-                      <h4 style={{ 
-                        margin: '0 0 0.25rem 0', 
+                      <h4 style={{
+                        margin: '0 0 0.25rem 0',
                         color: paymentMethod === 'cod' ? '#10b981' : '#1f2937'
                       }}>
                         Cash on Delivery
@@ -569,24 +585,24 @@ const Checkout = () => {
                   </div>
 
                   {/* Razorpay Payment */}
-                  <div 
+                  <div
                     onClick={() => setPaymentMethod('razorpay')}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: '1rem', 
-                      padding: '1rem', 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '1rem',
                       backgroundColor: paymentMethod === 'razorpay' ? 'rgba(59, 130, 246, 0.1)' : '#f9fafb',
-                      border: `2px solid ${paymentMethod === 'razorpay' ? '#3b82f6' : '#e5e7eb'}`, 
+                      border: `2px solid ${paymentMethod === 'razorpay' ? '#3b82f6' : '#e5e7eb'}`,
                       borderRadius: '8px',
                       cursor: 'pointer',
                       transition: 'all 0.2s ease'
                     }}
                   >
-                    <div style={{ 
-                      width: '20px', 
-                      height: '20px', 
-                      borderRadius: '50%', 
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
                       border: `2px solid ${paymentMethod === 'razorpay' ? '#3b82f6' : '#9ca3af'}`,
                       display: 'flex',
                       alignItems: 'center',
@@ -594,18 +610,18 @@ const Checkout = () => {
                       flexShrink: 0
                     }}>
                       {paymentMethod === 'razorpay' && (
-                        <div style={{ 
-                          width: '12px', 
-                          height: '12px', 
-                          borderRadius: '50%', 
-                          backgroundColor: '#3b82f6' 
+                        <div style={{
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '50%',
+                          backgroundColor: '#3b82f6'
                         }} />
                       )}
                     </div>
                     <FiCreditCard size={24} color={paymentMethod === 'razorpay' ? '#3b82f6' : '#6b7280'} />
                     <div>
-                      <h4 style={{ 
-                        margin: '0 0 0.25rem 0', 
+                      <h4 style={{
+                        margin: '0 0 0.25rem 0',
                         color: paymentMethod === 'razorpay' ? '#3b82f6' : '#1f2937'
                       }}>
                         Pay Online (Razorpay)
@@ -619,7 +635,7 @@ const Checkout = () => {
 
                 {/* Payment Info */}
                 {paymentMethod === 'razorpay' && (
-                  <div style={{ 
+                  <div style={{
                     backgroundColor: 'rgba(59, 130, 246, 0.05)',
                     border: '1px solid rgba(59, 130, 246, 0.2)',
                     borderRadius: '8px',
@@ -637,7 +653,7 @@ const Checkout = () => {
                 )}
 
                 {paymentMethod === 'cod' && (
-                  <div style={{ 
+                  <div style={{
                     backgroundColor: 'rgba(16, 185, 129, 0.05)',
                     border: '1px solid rgba(16, 185, 129, 0.2)',
                     borderRadius: '8px',
@@ -660,8 +676,8 @@ const Checkout = () => {
 
           {/* Right Column - Order Summary */}
           <div>
-            <div className="card" style={{ 
-              position: 'sticky', 
+            <div className="card" style={{
+              position: 'sticky',
               top: '2rem',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
               border: '1px solid #e5e7eb'
@@ -679,7 +695,7 @@ const Checkout = () => {
               <div className="card-body">
                 {/* Cart Items */}
                 <div style={{ marginBottom: '1.5rem' }}>
-                  {cartItems.map((item, index) => (
+                  {checkoutItems.map((item, index) => (
                     <div
                       key={item.id || item._id || `item-${index}`}
                       style={{
@@ -733,7 +749,7 @@ const Checkout = () => {
                     <span>Subtotal:</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
-                  
+
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span>Shipping:</span>
                     <span>{formatPrice(shipping)}</span>
@@ -758,8 +774,8 @@ const Checkout = () => {
                   className="btn btn-primary btn-full btn-lg"
                   disabled={loading}
                   style={{
-                    background: loading 
-                      ? '#e5e7eb' 
+                    background: loading
+                      ? '#e5e7eb'
                       : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     border: 'none',
                     color: loading ? '#9ca3af' : 'white',
@@ -767,8 +783,8 @@ const Checkout = () => {
                     borderRadius: '12px',
                     fontWeight: '600',
                     fontSize: '1.125rem',
-                    boxShadow: loading 
-                      ? 'none' 
+                    boxShadow: loading
+                      ? 'none'
                       : '0 8px 20px rgba(102, 126, 234, 0.3)',
                     transition: 'all 0.3s ease',
                     display: 'flex',
@@ -804,7 +820,7 @@ const Checkout = () => {
                     </>
                   )}
                 </button>
-                
+
                 {paymentMethod === 'cod' && (
                   <div style={{ fontSize: '0.75rem', color: '#6b7280', textAlign: 'center', marginTop: '1rem' }}>
                     <FiDollarSign size={12} style={{ marginRight: '0.25rem' }} />

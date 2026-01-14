@@ -13,7 +13,7 @@ import { constructImageUrl } from '../utils/imageUtils';
 const MIN_REVIEW_LENGTH = 20;
 
 const UserDashboard = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, setUser } = useAuth();
   const { getCartItemsCount, wishlist } = useCart();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,10 +105,12 @@ const UserDashboard = () => {
           address: result.user.address || ''
         });
         setUser(result.user);
-        alert('Profile updated successfully!');
+        showNotification('Profile updated successfully!', 'success');
+      } else {
+        showNotification(result.message || 'Failed to update profile', 'error');
       }
     } catch (error) {
-      alert('Failed to update profile');
+      showNotification('An unexpected error occurred', 'error');
     }
   };
 

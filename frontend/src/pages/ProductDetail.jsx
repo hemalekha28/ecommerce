@@ -12,7 +12,7 @@ import SimpleNotification from '../components/NotificationToast';
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -22,10 +22,10 @@ const ProductDetail = () => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [notification, setNotification] = useState(null);
-  
+
   const { cart, addToCart: addToCartContext, getItemQuantityInCart } = useCart();
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-  
+
   // Check if product is in wishlist
   const isInWishlist = (productId) => {
     return wishlist && wishlist.some(item => item._id === productId || item.id === productId);
@@ -41,24 +41,24 @@ const ProductDetail = () => {
   // Single API call to fetch product data
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchProduct = async () => {
       if (!id) return;
-      
+
       setIsLoading(true);
       setError(null);
-      
+
       try {
         const response = await fetch(`/api/products/${id}`);
         const data = await response.json();
-        
+
         if (!isMounted) return;
-        
+
         if (data.success) {
           const productData = data.data.product;
           setProduct(productData);
           setQuantity(1);
-          
+
           // Load reviews if available
           if (productData.reviews) {
             setReviews(productData.reviews);
@@ -77,20 +77,20 @@ const ProductDetail = () => {
         }
       }
     };
-    
+
     fetchProduct();
-    
+
     return () => {
       isMounted = false;
     };
   }, [id]);
-  
+
   // Handle quantity change
   const handleQuantityChange = (newQuantity) => {
     const maxAvailable = product?.stock || 0;
     const cartQuantity = getItemQuantityInCart ? getItemQuantityInCart(product?._id) : 0;
     const availableQuantity = Math.max(0, maxAvailable - cartQuantity);
-    
+
     if (newQuantity < 1 || newQuantity > availableQuantity) return;
     setQuantity(newQuantity);
   };
@@ -98,50 +98,55 @@ const ProductDetail = () => {
   // Handle add to cart
   const handleAddToCart = async () => {
     if (!product) return;
-    
+
     const productId = product._id || product.id;
     if (!productId) {
       showNotification('Invalid product', 'error');
       return;
     }
-    
+
     if (product.stock <= 0) {
       showNotification('This product is out of stock', 'error');
       return;
     }
-    
+
     try {
       await addToCartContext({
         ...product,
         id: productId,
         productId: productId
       }, quantity);
-      
+
       showNotification('Added to cart!', 'success');
     } catch (err) {
       console.error('Failed to add to cart:', err);
       showNotification(err.message || 'Failed to add to cart', 'error');
     }
   };
-  
+
   // Handle buy now
   const handleBuyNow = async () => {
     if (!product) return;
-    
+
     if (product.stock <= 0) {
       showNotification('This product is out of stock', 'error');
       return;
     }
-    
+
     setIsBuyingNow(true);
     try {
-      await addToCartContext({
-        ...product,
-        id: product._id,
-        productId: product._id
-      }, quantity);
-      
-      navigate('/checkout?buyNow=true');
+      // Pass product directly to checkout via state
+      // This prevents adding it to the cart, allowing for a "single item checkout" flow
+      navigate('/checkout', {
+        state: {
+          buyNowItem: {
+            ...product,
+            id: product._id,
+            productId: product._id,
+            quantity: quantity
+          }
+        }
+      });
     } catch (err) {
       console.error('Failed to process buy now:', err);
       showNotification('Failed to process order', 'error');
@@ -166,7 +171,7 @@ const ProductDetail = () => {
       </div>
     );
   }
-  
+
   // Error state
   if (error || !product) {
     return (
@@ -174,7 +179,7 @@ const ProductDetail = () => {
         <FiAlertCircle className="product-error-icon" />
         <h2>{error || 'Product not found'}</h2>
         <p className="product-error-message">We couldn't find the product you're looking for.</p>
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="btn-retry"
         >
@@ -187,42 +192,42 @@ const ProductDetail = () => {
   return (
     <div className="product-detail-container">
       {/* Back button */}
-      <button 
+      <button
         onClick={() => navigate(-1)}
         className="back-button"
       >
         <FiArrowLeft /> Back to Products
       </button>
-      
+
       {/* Main product content */}
       <div className="product-card">
         {/* Product images */}
         <div className="product-image-container">
           <ProductImage product={product} selectedImageIndex={selectedImage} />
         </div>
-        
+
         {/* Product info */}
         <div className="product-info">
           <span className="product-category">{product.category || 'Uncategorized'}</span>
           <h1 className="product-title">{product.name}</h1>
-          
+
           {/* Price and stock status */}
           <div className="product-price">
             <span className="price-current">${product.price?.toFixed(2) || '0.00'}</span>
             <StockBadge stock={availableQuantity} />
           </div>
-          
+
           {/* Description */}
           <div className="product-description">
             <p>{product.description || 'No description available.'}</p>
           </div>
-          
+
           {/* Quantity selector */}
           <div className="quantity-selector">
             <label>Quantity</label>
             <div className="quantity-control">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="quantity-btn"
                 onClick={() => handleQuantityChange(quantity - 1)}
                 disabled={quantity <= 1}
@@ -235,7 +240,7 @@ const ProductDetail = () => {
                 value={quantity}
                 readOnly
               />
-              <button 
+              <button
                 type="button"
                 className="quantity-btn"
                 onClick={() => handleQuantityChange(quantity + 1)}
@@ -248,10 +253,10 @@ const ProductDetail = () => {
               </span>
             </div>
           </div>
-          
+
           {/* Action buttons */}
           <div className="product-actions">
-            <button 
+            <button
               className={`btn-add-to-cart ${!inStock ? 'disabled' : ''}`}
               onClick={handleAddToCart}
               disabled={!inStock || isAddingToCart}
@@ -270,8 +275,8 @@ const ProductDetail = () => {
                 <span>Out of Stock</span>
               )}
             </button>
-            
-            <button 
+
+            <button
               className={`btn-buy-now ${!inStock ? 'disabled' : ''}`}
               onClick={handleBuyNow}
               disabled={!inStock || isBuyingNow}
@@ -285,7 +290,7 @@ const ProductDetail = () => {
                 <span>Buy Now</span>
               )}
             </button>
-            
+
             <button
               className={`btn-wishlist ${isInWishlist(product?._id || product?.id) ? 'active' : ''}`}
               onClick={() => {
@@ -296,20 +301,20 @@ const ProductDetail = () => {
                 }
                 isInWishlist(productId) ? removeFromWishlist(productId) : addToWishlist(product);
                 showNotification(
-                  isInWishlist(productId) 
-                    ? 'Removed from wishlist' 
+                  isInWishlist(productId)
+                    ? 'Removed from wishlist'
                     : 'Added to wishlist',
                   'success'
                 );
               }}
             >
-              <FiHeart 
+              <FiHeart
                 fill={isInWishlist(product?._id || product?.id) ? 'currentColor' : 'none'}
               />
               <span>{isInWishlist(product?._id || product?.id) ? 'Saved to Wishlist' : 'Save to Wishlist'}</span>
             </button>
           </div>
-          
+
           {/* Product details */}
           <div className="product-meta">
             <div className="meta-item">
@@ -321,7 +326,7 @@ const ProductDetail = () => {
                 <div className="meta-value">{product.category || 'N/A'}</div>
               </div>
             </div>
-            
+
             <div className="meta-item">
               <div className="meta-icon">
                 <FiTag />
@@ -331,7 +336,7 @@ const ProductDetail = () => {
                 <div className="meta-value">{product.sku || 'N/A'}</div>
               </div>
             </div>
-            
+
             {product.brand && (
               <div className="meta-item">
                 <div className="meta-icon">
@@ -343,7 +348,7 @@ const ProductDetail = () => {
                 </div>
               </div>
             )}
-            
+
             <div className="meta-item">
               <div className="meta-icon">
                 <FiPackage />
@@ -358,7 +363,7 @@ const ProductDetail = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Reviews Section */}
       <div className="reviews-section">
         <div className="reviews-header">
@@ -370,18 +375,18 @@ const ProductDetail = () => {
             {reviews.length === 0 ? 'Share your experience first!' : 'What customers are saying'}
           </p>
         </div>
-        
+
         <div className="reviews-content">
           <ReviewsSection reviews={reviews} productName={product.name} />
         </div>
       </div>
-      
+
       {/* Notification */}
       {notification && (
-        <SimpleNotification 
-          message={notification.message} 
-          type={notification.type} 
-          onClose={() => setNotification(null)} 
+        <SimpleNotification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
         />
       )}
     </div>
