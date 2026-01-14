@@ -4,6 +4,8 @@ import { FiMinus, FiPlus, FiTrash2, FiShoppingBag } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
 import { useAuth } from '../context/authContext';
 import { formatPrice } from '../utils/helpers';
+import Image from '../components/Image';
+import { constructImageUrl } from '../utils/imageUtils';
 
 const Cart = () => {
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
@@ -21,46 +23,31 @@ const Cart = () => {
     return (item._id || item.id)?.toString();
   };
 
-  // Helper function to get correct image URL
-  const getImageUrl = (item) => {
-    if (!item.image) {
-      return 'https://via.placeholder.com/80x80?text=Product';
-    }
-    
-    // If image is already a full URL, use it as is
-    if (item.image.startsWith('http')) {
-      return item.image;
-    }
-    
-    // If it's just a filename, construct the full URL
-    return `http://localhost:5000/uploads/${item.image}`;
-  };
-
   const handleQuantityChange = (item, newQuantity) => {
     if (newQuantity < 1) return;
-    
+
     const productId = getProductId(item);
     console.log('Updating quantity for product:', productId, 'to:', newQuantity);
-    
+
     // Validate productId before API call
     if (!productId || productId === 'undefined') {
       console.error('Invalid product ID:', productId, 'for item:', item);
       return;
     }
-    
+
     updateQuantity(productId, newQuantity);
   };
 
   const handleRemoveItem = (item) => {
     const productId = getProductId(item);
     console.log('Removing product:', productId);
-    
+
     // Validate productId before API call
     if (!productId || productId === 'undefined') {
       console.error('Invalid product ID:', productId, 'for item:', item);
       return;
     }
-    
+
     removeFromCart(productId);
   };
 
@@ -75,8 +62,8 @@ const Cart = () => {
   if (cartItems.length === 0) {
     return (
       <div className="container" style={{ padding: '2rem 0', minHeight: '60vh' }}>
-        <div className="card" style={{ 
-          padding: '4rem 2rem', 
+        <div className="card" style={{
+          padding: '4rem 2rem',
           textAlign: 'center',
           background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
           border: 'none',
@@ -95,21 +82,21 @@ const Cart = () => {
           }}>
             <FiShoppingBag size={48} color="white" />
           </div>
-          <h2 style={{ 
-            marginBottom: '1rem', 
+          <h2 style={{
+            marginBottom: '1rem',
             color: '#1f2937',
             fontSize: '2rem',
             fontWeight: '700'
           }}>Your cart is empty</h2>
-          <p style={{ 
-            marginBottom: '2rem', 
+          <p style={{
+            marginBottom: '2rem',
             color: '#6b7280',
             fontSize: '1.125rem'
           }}>
             Looks like you haven't added any items to your cart yet.
           </p>
-          <Link 
-            to="/products" 
+          <Link
+            to="/products"
             className="btn btn-primary btn-lg"
             style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -236,16 +223,16 @@ const Cart = () => {
 
               {cartItems.map((item, index) => {
                 const productId = getProductId(item);
-                
+
                 // Skip items without valid IDs and log warning
                 if (!productId || productId === 'undefined') {
                   console.warn('Skipping cart item with invalid ID:', item);
                   return null;
                 }
-                
+
                 // Use productId as key, fallback to index if needed
                 const itemKey = productId || `item-${index}`;
-                
+
                 return (
                   <div key={itemKey} className="cart-item" style={{
                     display: 'flex',
@@ -260,8 +247,8 @@ const Cart = () => {
                     transition: 'all 0.3s ease'
                   }}>
                     <Link to={`/product/${productId}`}>
-                      <img
-                        src={getImageUrl(item)}
+                      <Image
+                        src={constructImageUrl(item.image) || '/placeholder-product.svg'}
                         alt={item.name}
                         className="cart-item-image"
                         style={{
@@ -269,9 +256,6 @@ const Cart = () => {
                           height: '80px',
                           objectFit: 'cover',
                           borderRadius: '8px'
-                        }}
-                        onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/80x80?text=Product';
                         }}
                       />
                     </Link>
@@ -400,8 +384,8 @@ const Cart = () => {
 
         {/* Order Summary */}
         <div>
-          <div className="card" style={{ 
-            position: 'sticky', 
+          <div className="card" style={{
+            position: 'sticky',
             top: '2rem',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             border: '1px solid #e5e7eb'
@@ -419,7 +403,7 @@ const Cart = () => {
                   <span>Subtotal:</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
-                
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span>Shipping:</span>
                   <div style={{ textAlign: 'right' }}>
@@ -482,8 +466,8 @@ const Cart = () => {
                 >
                   {user ? 'Proceed to Checkout' : 'Login to Checkout'}
                 </button>
-                <Link 
-                  to="/products" 
+                <Link
+                  to="/products"
                   className="btn btn-secondary btn-full"
                   style={{
                     background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',

@@ -387,29 +387,48 @@
 
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1.5rem;
+  padding: 1rem 2rem;
+  justify-content: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .category-card {
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 280px;
+  width: 100%;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
 }
 
 .category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-card:hover .shop-now {
+  background: rgba(79, 70, 229, 0.15);
 }
 
 .category-image-container {
   position: relative;
-  padding-top: 66.67%; /* 3:2 aspect ratio */
+  padding-top: 50%; /* More compact aspect ratio */
   overflow: hidden;
+  background: #f8f9fa;
+  margin: 0.5rem 0.5rem 0;
+  border-radius: 0.5rem;
 }
 
 .category-image {
@@ -419,7 +438,9 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   transition: transform 0.5s ease;
+  background-color: #f8f9fa;
 }
 
 .category-card:hover .category-image {
@@ -427,15 +448,20 @@
 }
 
 .category-info {
-  padding: 1.25rem;
+  padding: 0.5rem 0.5rem 0.75rem;
   text-align: center;
+  margin-top: auto;
 }
 
 .category-info h3 {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 0.5rem;
 }
 
 .shop-now {
@@ -443,8 +469,11 @@
   align-items: center;
   color: #4f46e5;
   font-weight: 500;
-  font-size: 0.875rem;
-  transition: color 0.2s ease;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(79, 70, 229, 0.1);
 }
 
 .category-card:hover .shop-now {

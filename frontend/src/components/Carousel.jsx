@@ -26,6 +26,8 @@ const PrevArrow = ({ onClick }) => (
 );
 
 const Carousel = ({ slides = [] }) => {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+
   const settings = {
     dots: true,
     infinite: true,
@@ -41,6 +43,7 @@ const Carousel = ({ slides = [] }) => {
     fade: true,
     cssEase: 'cubic-bezier(0.4, 0, 0.2, 1)',
     dotsClass: 'slick-dots !bottom-6',
+    beforeChange: (oldIndex, newIndex) => setCurrentSlide(newIndex),
   };
 
   return (
@@ -72,13 +75,21 @@ const Carousel = ({ slides = [] }) => {
                     </p>
                     <div className="flex gap-4 flex-wrap">
                       {slide.primaryCta && (
-                        <Link to={slide.primaryCta.href} className="btn btn-primary btn-lg">
+                        <Link
+                          to={slide.primaryCta.href}
+                          className="btn btn-primary btn-lg"
+                          tabIndex={currentSlide === idx ? 0 : -1}
+                        >
                           <FiShoppingBag />
                           {slide.primaryCta.label}
                         </Link>
                       )}
                       {slide.secondaryCta && (
-                        <Link to={slide.secondaryCta.href} className="btn btn-secondary btn-lg">
+                        <Link
+                          to={slide.secondaryCta.href}
+                          className="btn btn-secondary btn-lg"
+                          tabIndex={currentSlide === idx ? 0 : -1}
+                        >
                           {slide.secondaryCta.label}
                         </Link>
                       )}

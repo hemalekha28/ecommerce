@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import { api } from '../utils/api';
 import { formatPrice } from '../utils/helpers';
+import { constructImageUrl } from '../utils/imageUtils';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState([]);
@@ -53,27 +54,27 @@ const ProductManagement = () => {
 
   const validateForm = () => {
     const { name, price, category, description, image, stock } = formData;
-    
+
     if (!name.trim()) return 'Product name is required';
     if (!price || parseFloat(price) < 0) return 'Valid price is required';
     if (!category) return 'Category is required';
     if (!description.trim()) return 'Description is required';
     if (!image.trim()) return 'Image URL is required';
     if (!stock || parseInt(stock) < 0) return 'Valid stock quantity is required';
-    
+
     // Basic URL validation
     try {
       new URL(image);
     } catch {
       return 'Please enter a valid image URL';
     }
-    
+
     return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const validationError = validateForm();
     if (validationError) {
       showNotification('error', validationError);
@@ -81,7 +82,7 @@ const ProductManagement = () => {
     }
 
     setSubmitting(true);
-    
+
     try {
       const productData = {
         ...formData,
@@ -155,7 +156,7 @@ const ProductManagement = () => {
 
   const categories = [
     'electronics',
-    'clothing', 
+    'clothing',
     'books',
     'home',
     'sports',
@@ -166,12 +167,12 @@ const ProductManagement = () => {
     <div className="container">
       {/* Notification */}
       {notification.show && (
-        <div 
+        <div
           className={`alert ${notification.type === 'success' ? 'alert-success' : 'alert-danger'}`}
-          style={{ 
-            position: 'fixed', 
-            top: '20px', 
-            right: '20px', 
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
             zIndex: 1000,
             display: 'flex',
             alignItems: 'center',
@@ -208,14 +209,14 @@ const ProductManagement = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{ paddingLeft: '2.5rem', minWidth: '300px' }}
               />
-              <FiSearch 
-                style={{ 
-                  position: 'absolute', 
-                  left: '0.75rem', 
-                  top: '50%', 
+              <FiSearch
+                style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
                   transform: 'translateY(-50%)',
                   color: 'var(--gray-400)'
-                }} 
+                }}
               />
             </div>
             <div style={{ fontSize: '0.875rem', color: 'var(--gray-600)' }}>
@@ -257,7 +258,7 @@ const ProductManagement = () => {
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <img
-                            src={product.image}
+                            src={constructImageUrl(product.image)}
                             alt={product.name}
                             style={{
                               width: '50px',
@@ -299,7 +300,7 @@ const ProductManagement = () => {
                         {formatPrice(product.price)}
                       </td>
                       <td>
-                        <span style={{ 
+                        <span style={{
                           color: product.stock < 10 ? 'var(--danger)' : 'var(--gray-700)',
                           fontWeight: product.stock < 10 ? '600' : 'normal'
                         }}>
@@ -470,8 +471,8 @@ const ProductManagement = () => {
                 disabled={submitting}
                 className="btn btn-primary"
               >
-                {submitting 
-                  ? (editingProduct ? 'Updating...' : 'Adding...') 
+                {submitting
+                  ? (editingProduct ? 'Updating...' : 'Adding...')
                   : (editingProduct ? 'Update Product' : 'Add Product')
                 }
               </button>

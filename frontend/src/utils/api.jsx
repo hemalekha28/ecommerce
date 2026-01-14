@@ -365,6 +365,21 @@ export const api = {
     return response.data;
   },
 
+  // Get products by IDs for comparison
+  getProductsByIds: async (ids) => {
+    try {
+      const idString = Array.isArray(ids) ? ids.join(',') : ids;
+      const response = await API.get(`/products/by-ids?ids=${idString}`);
+      
+      // Extract products from response
+      const products = extractProducts(response.data);
+      return products;
+    } catch (err) {
+      console.error('API error fetching products by IDs:', err);
+      throw new Error(err.response?.data?.message || err.message || 'Failed to fetch products by IDs');
+    }
+  },
+
   // Users API methods
   getUsers: async () => {
     try {

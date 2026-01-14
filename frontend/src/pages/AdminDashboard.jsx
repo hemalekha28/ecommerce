@@ -17,6 +17,7 @@ import { Line, Bar, Pie } from 'react-chartjs-2';
 import * as XLSX from 'xlsx';
 import { api } from '../utils/api';
 import { formatPrice, formatDate, getStatusColor } from "../utils/helpers";
+import { constructImageUrl } from '../utils/imageUtils';
 
 ChartJS.register(
   CategoryScale,
@@ -86,21 +87,21 @@ const AdminDashboard = () => {
   // Prepare safe chart datasets
   const salesByMonth = Array.isArray(analytics?.salesByMonth)
     ? analytics.salesByMonth.map(item => ({
-        month: item.month || '',
-        sales: Number(item.sales || 0),
-        orders: Number(item.orders || 0),
-        growth: Number(item.growth || 0)
-      }))
+      month: item.month || '',
+      sales: Number(item.sales || 0),
+      orders: Number(item.orders || 0),
+      growth: Number(item.growth || 0)
+    }))
     : [];
 
   const salesByCategory = Array.isArray(analytics?.salesByCategory)
     ? analytics.salesByCategory.map(item => ({
-        name: item.name || 'Unknown',
-        value: Number(item.value != null ? item.value : item.sales || 0),
-        sales: Number(item.sales || 0),
-        orders: Number(item.orders || 0),
-        percentage: Number(item.percentage || 0)
-      }))
+      name: item.name || 'Unknown',
+      value: Number(item.value != null ? item.value : item.sales || 0),
+      sales: Number(item.sales || 0),
+      orders: Number(item.orders || 0),
+      percentage: Number(item.percentage || 0)
+    }))
     : [];
 
   const downloadExcelReport = () => {
@@ -272,7 +273,7 @@ const AdminDashboard = () => {
           borderRadius: '50%',
           animation: 'spin 1s linear infinite',
         }}></div>
-        <p style={{ 
+        <p style={{
           color: 'var(--text-secondary)',
           fontSize: '1rem',
           fontWeight: '500',
@@ -283,30 +284,30 @@ const AdminDashboard = () => {
 
   if (!analytics) {
     return (
-      <div style={{ 
-        padding: '4rem 2rem', 
+      <div style={{
+        padding: '4rem 2rem',
         textAlign: 'center',
         maxWidth: '600px',
         margin: '0 auto',
       }}>
         <div style={{
-              background: 'var(--bg-primary)',
-              borderRadius: '12px',
-              padding: '2rem',
-              border: '1px solid var(--border-light)',
+          background: 'var(--bg-primary)',
+          borderRadius: '12px',
+          padding: '2rem',
+          border: '1px solid var(--border-light)',
         }}>
           <div style={{
             width: '60px',
             height: '60px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1.5rem',
-              border: '2px solid var(--primary)',
-            }}>
-              <FiBarChart2 size={28} color="var(--primary)" />
+            background: 'var(--bg-secondary)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 1.5rem',
+            border: '2px solid var(--primary)',
+          }}>
+            <FiBarChart2 size={28} color="var(--primary)" />
           </div>
           <h3 style={{
             fontSize: '1.25rem',
@@ -319,10 +320,10 @@ const AdminDashboard = () => {
             marginBottom: '1.5rem',
             lineHeight: '1.5',
           }}>
-            We encountered an issue while loading your dashboard data. 
+            We encountered an issue while loading your dashboard data.
             Please check your connection and try again.
           </p>
-          <button 
+          <button
             onClick={loadAnalytics}
             className="btn btn-primary"
             style={{
@@ -387,16 +388,16 @@ const AdminDashboard = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3>Quick Actions</h3>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-              <button 
-                onClick={downloadExcelReport} 
+              <button
+                onClick={downloadExcelReport}
                 className="btn btn-sm btn-success"
                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
                 <FiDownload size={16} />
                 Download Report
               </button>
-              <button 
-                onClick={loadAnalytics} 
+              <button
+                onClick={loadAnalytics}
                 className="btn btn-sm btn-secondary"
                 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
@@ -412,12 +413,12 @@ const AdminDashboard = () => {
               <FiPackage />
               Manage Products
             </Link>
-            
+
             <Link to="/admin/orders" className="btn btn-secondary">
               <FiShoppingCart />
               Manage Orders
             </Link>
-            
+
             <Link to="/admin/users" className="btn btn-success">
               <FiUsers />
               Manage Users
@@ -491,7 +492,7 @@ const AdminDashboard = () => {
                         },
                         tooltip: {
                           callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                               let label = context.dataset.label || '';
                               if (label) {
                                 label += ': ';
@@ -543,7 +544,7 @@ const AdminDashboard = () => {
                         },
                         tooltip: {
                           callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                               let label = context.dataset.label || '';
                               if (label) {
                                 label += ': ';
@@ -643,7 +644,7 @@ const AdminDashboard = () => {
                         boxPadding: 6,
                         usePointStyle: true,
                         callbacks: {
-                          label: function(context) {
+                          label: function (context) {
                             const label = context.label || '';
                             const value = formatPrice(context.parsed);
                             return ` ${label}: ${value}`;
@@ -771,7 +772,7 @@ const AdminDashboard = () => {
                       {index + 1}
                     </div>
                     <img
-                      src={product.image}
+                      src={constructImageUrl(product.image)}
                       alt={product.name}
                       style={{
                         width: '50px',

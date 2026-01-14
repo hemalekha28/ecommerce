@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  FiShoppingBag, 
-  FiTruck, 
-  FiShield, 
+import {
+  FiShoppingBag,
+  FiTruck,
+  FiShield,
   FiHeadphones,
   FiArrowRight
 } from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
 import { api } from '../utils/api';
 import Carousel from '../components/Carousel';
+import Image from '../components/Image';
 import '../styles/home.css';
 
 const Home = () => {
@@ -20,7 +21,7 @@ const Home = () => {
     const loadFeaturedProducts = async () => {
       try {
         const products = await api.getProducts();
-        
+
         // Get top-rated products as featured
         const featured = [...products].sort((a, b) => b.rating - a.rating).slice(0, 8);
         setFeaturedProducts(featured);
@@ -37,22 +38,22 @@ const Home = () => {
   const categories = [
     {
       name: 'Electronics',
-      image: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300&h=200&fit=crop',
+      image: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=600&q=80',
       link: '/products?category=electronics'
     },
     {
       name: 'Clothing',
-      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=200&fit=crop',
+      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80',
       link: '/products?category=clothing'
     },
     {
       name: 'Home & Garden',
-      image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
+      image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=600&q=80',
       link: '/products?category=home'
     },
     {
       name: 'Sports',
-      image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=300&h=200&fit=crop',
+      image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=600&q=80',
       link: '/products?category=sports'
     }
   ];
@@ -144,12 +145,17 @@ const Home = () => {
                 className="category-card"
               >
                 <div className="category-image-container">
-                  <img
+                  <Image
                     src={category.image}
                     alt={category.name}
                     className="category-image"
-                    onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/300x200?text=Category';
+                    fallback="/assets/no-image-placeholder.svg"
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%'
                     }}
                   />
                 </div>
@@ -195,8 +201,8 @@ const Home = () => {
       </section>
 
       {/* Newsletter */}
-      <section style={{ 
-        padding: '4rem 0', 
+      <section style={{
+        padding: '4rem 0',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         position: 'relative',
@@ -235,7 +241,7 @@ const Home = () => {
               type="email"
               placeholder="Enter your email"
               className="form-input rounded-md"
-              style={{ 
+              style={{
                 flex: 1,
                 padding: '0.875rem 1.25rem',
                 borderRadius: '12px',
@@ -244,8 +250,8 @@ const Home = () => {
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
               }}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn btn-secondary"
               style={{
                 background: 'rgba(255, 255, 255, 0.2)',

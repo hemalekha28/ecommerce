@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiEye, FiFilter, FiRefreshCw, FiPackage, FiTruck, FiCheckCircle, FiXCircle, FiAlertCircle } from 'react-icons/fi';
 import { api } from '../utils/api';
 import { formatPrice, formatDate, getStatusColor } from '../utils/helpers';
+import { constructImageUrl } from '../utils/imageUtils';
 
 const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
@@ -27,10 +28,10 @@ const OrderManagement = () => {
 
       const filters = statusFilter !== 'all' ? { status: statusFilter } : {};
       console.log('Loading orders with filters:', filters);
-      
+
       const data = await api.getOrders(filters);
       console.log('Received orders:', data);
-      
+
       setOrders(data);
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -152,7 +153,7 @@ const OrderManagement = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <FiRefreshCw className="stat-icon" />
@@ -162,7 +163,7 @@ const OrderManagement = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <FiTruck className="stat-icon" />
@@ -172,7 +173,7 @@ const OrderManagement = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <FiCheckCircle className="stat-icon" />
@@ -182,7 +183,7 @@ const OrderManagement = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span className="stat-icon">₹</span>
@@ -202,7 +203,7 @@ const OrderManagement = () => {
               <FiPackage size={48} color="#ccc" />
               <h3 style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>No orders found</h3>
               <p style={{ color: 'var(--gray-500)' }}>
-                {statusFilter !== 'all' 
+                {statusFilter !== 'all'
                   ? `No orders with status "${statusFilter}" were found.`
                   : 'There are no orders in the system yet.'
                 }
@@ -285,32 +286,32 @@ const OrderManagement = () => {
                 ×
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="grid grid-2" style={{ marginBottom: '2rem' }}>
                 <div>
                   <h4>Customer Information</h4>
                   <div style={{ marginTop: '1rem' }}>
-                    <strong>Name:</strong> {selectedOrder.userName || selectedOrder.user?.name || 'Unknown User'}<br/>
-                    <strong>Email:</strong> {selectedOrder.userEmail || selectedOrder.user?.email || 'No email'}<br/>
-                    <strong>Order Date:</strong> {formatDate(selectedOrder.date || selectedOrder.createdAt)}<br/>
+                    <strong>Name:</strong> {selectedOrder.userName || selectedOrder.user?.name || 'Unknown User'}<br />
+                    <strong>Email:</strong> {selectedOrder.userEmail || selectedOrder.user?.email || 'No email'}<br />
+                    <strong>Order Date:</strong> {formatDate(selectedOrder.date || selectedOrder.createdAt)}<br />
                     <strong>Status:</strong> <span className={`badge badge-${getStatusColor(selectedOrder.status)}`}>
                       {selectedOrder.status}
                     </span>
                   </div>
                 </div>
-                
+
                 <div>
                   <h4>Order Summary</h4>
                   <div style={{ marginTop: '1rem' }}>
-                    <strong>Items:</strong> {selectedOrder.items?.length || selectedOrder.products?.length || 0}<br/>
-                    <strong>Total:</strong> {formatPrice(selectedOrder.total || 0)}<br/>
+                    <strong>Items:</strong> {selectedOrder.items?.length || selectedOrder.products?.length || 0}<br />
+                    <strong>Total:</strong> {formatPrice(selectedOrder.total || 0)}<br />
                     {selectedOrder.shippingAddress && (
                       <>
-                        <strong>Shipping Address:</strong><br/>
+                        <strong>Shipping Address:</strong><br />
                         <div style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
-                          {selectedOrder.shippingAddress.address}<br/>
-                          {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.postalCode}<br/>
+                          {selectedOrder.shippingAddress.address}<br />
+                          {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.postalCode}<br />
                           {selectedOrder.shippingAddress.country}
                         </div>
                       </>
@@ -335,20 +336,20 @@ const OrderManagement = () => {
                     }}
                   >
                     <div style={{ flex: 1 }}>
-                      <strong>{item.name || item.product?.name || 'Unknown Item'}</strong><br/>
+                      <strong>{item.name || item.product?.name || 'Unknown Item'}</strong><br />
                       <span style={{ color: 'var(--gray-600)', fontSize: '0.875rem' }}>
                         Quantity: {item.quantity} × {formatPrice(item.price || 0)}
                       </span>
                       {item.image && (
-                        <div style={{ marginTop: '0.5rem' }}>
-                          <img 
-                            src={item.image} 
+                        <div style={{ width: '50px', height: '50px', marginRight: '1rem', flexShrink: 0 }}>
+                          <img
+                            src={constructImageUrl(item.image)}
                             alt={item.name}
-                            style={{ 
-                              width: '48px', 
-                              height: '48px', 
-                              objectFit: 'cover', 
-                              borderRadius: '4px' 
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              borderRadius: '8px'
                             }}
                           />
                         </div>
@@ -360,11 +361,11 @@ const OrderManagement = () => {
                   </div>
                 ))}
               </div>
-              
+
               {/* Order Total */}
-              <div style={{ 
-                marginTop: '1.5rem', 
-                paddingTop: '1rem', 
+              <div style={{
+                marginTop: '1.5rem',
+                paddingTop: '1rem',
                 borderTop: '1px solid var(--gray-200)',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -376,7 +377,7 @@ const OrderManagement = () => {
                 </span>
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button onClick={() => setShowModal(false)} className="btn btn-secondary">
                 Close

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiHeart, FiShoppingCart, FiTrash2 } from 'react-icons/fi';
 import { useCart } from '../context/cartContext';
 import { formatPrice } from '../utils/helpers';
+import { constructImageUrl } from '../utils/imageUtils';
 
 const Wishlist = () => {
   const { addToCart, removeFromWishlist, wishlist } = useCart();
@@ -10,32 +11,6 @@ const Wishlist = () => {
   // Helper function to get consistent product ID
   const getProductId = (product) => {
     return product._id || product.id;
-  };
-
-  // Helper function to get correct image URL
-  const getImageUrl = (product) => {
-    if (!product.image) {
-      // Create a simple fallback image using canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = 300;
-      canvas.height = 200;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#f0f0f0';
-      ctx.fillRect(0, 0, 300, 200);
-      ctx.fillStyle = '#666';
-      ctx.font = '16px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('Product Image', 150, 100);
-      return canvas.toDataURL();
-    }
-    
-    // If image is already a full URL, use it as is
-    if (product.image.startsWith('http')) {
-      return product.image;
-    }
-    
-    // If it's just a filename, construct the full URL
-    return `http://localhost:5000/uploads/${product.image}`;
   };
 
   const handleRemoveFromWishlist = (productId) => {
@@ -55,8 +30,8 @@ const Wishlist = () => {
   if (wishlist.length === 0) {
     return (
       <div className="container" style={{ padding: '2rem 0', minHeight: '60vh' }}>
-        <div className="card" style={{ 
-          padding: '4rem 2rem', 
+        <div className="card" style={{
+          padding: '4rem 2rem',
           textAlign: 'center',
           background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
           border: 'none',
@@ -75,21 +50,21 @@ const Wishlist = () => {
           }}>
             <FiHeart size={48} color="white" />
           </div>
-          <h2 style={{ 
-            marginBottom: '1rem', 
+          <h2 style={{
+            marginBottom: '1rem',
             color: '#1f2937',
             fontSize: '2rem',
             fontWeight: '700'
           }}>Your wishlist is empty</h2>
-          <p style={{ 
-            marginBottom: '2rem', 
+          <p style={{
+            marginBottom: '2rem',
             color: '#6b7280',
             fontSize: '1.125rem'
           }}>
             Save items you love for later by clicking the heart icon on any product.
           </p>
-          <Link 
-            to="/products" 
+          <Link
+            to="/products"
             className="btn btn-primary btn-lg"
             style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -170,7 +145,7 @@ const Wishlist = () => {
             <div key={productId} className="card">
               <Link to={`/product/${productId}`}>
                 <img
-                  src={getImageUrl(product)}
+                  src={constructImageUrl(product.image)}
                   alt={product.name}
                   style={{
                     width: '100%',
@@ -178,16 +153,16 @@ const Wishlist = () => {
                     objectFit: 'cover'
                   }}
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/300x200?text=Product+Image';
+                    e.target.src = '/assets/no-image-placeholder.svg';
                   }}
                 />
               </Link>
 
               <div className="card-body">
                 <Link to={`/product/${productId}`} style={{ textDecoration: 'none' }}>
-                  <h3 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
+                  <h3 style={{
+                    fontSize: '1rem',
+                    fontWeight: '600',
                     marginBottom: '0.5rem',
                     color: 'var(--dark)',
                     display: '-webkit-box',
@@ -205,21 +180,21 @@ const Wishlist = () => {
                   </span>
                 </div>
 
-                <div style={{ 
-                  fontSize: '1.125rem', 
-                  fontWeight: '700', 
-                  color: 'var(--primary)', 
-                  marginBottom: '1rem' 
+                <div style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '700',
+                  color: 'var(--primary)',
+                  marginBottom: '1rem'
                 }}>
                   {formatPrice(product.price)}
                 </div>
 
                 {product.rating && (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '0.5rem', 
-                    marginBottom: '1rem' 
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '1rem'
                   }}>
                     <div style={{ display: 'flex', color: '#f59e0b' }}>
                       {[...Array(5)].map((_, i) => (
@@ -271,13 +246,13 @@ const Wishlist = () => {
                     <FiShoppingCart />
                     {product.stock ? 'Move to Cart' : 'Out of Stock'}
                   </button>
-                  
+
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
                       onClick={() => handleAddToCart(product)}
                       className="btn btn-secondary"
                       disabled={!product.stock}
-                      style={{ 
+                      style={{
                         flex: 1,
                         background: product.stock ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' : '#e5e7eb',
                         border: 'none',
@@ -304,12 +279,12 @@ const Wishlist = () => {
                     >
                       Add to Cart
                     </button>
-                    
+
                     <button
                       onClick={() => handleRemoveFromWishlist(productId)}
                       className="btn btn-danger"
                       title="Remove from wishlist"
-                      style={{ 
+                      style={{
                         minWidth: '44px',
                         background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                         border: 'none',
@@ -340,8 +315,8 @@ const Wishlist = () => {
       </div>
 
       <div className="text-center" style={{ marginTop: '3rem' }}>
-        <Link 
-          to="/products" 
+        <Link
+          to="/products"
           className="btn btn-primary"
           style={{
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

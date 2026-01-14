@@ -3,9 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } f
 import { AuthProvider, useAuth } from './context/authContext';
 import { CartProvider, useCart } from './context/cartContext';
 import { NotificationProvider, useNotification } from './context/notificationContext';
+import { CompareProvider, useCompare } from './context/compareContext';
+import { WishlistProvider } from './context/wishlistContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import NotificationToast from './components/NotificationToast';
+import CompareFloatingButton from './components/CompareFloatingButton';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Login from './pages/Login';
@@ -19,6 +22,7 @@ import UserManagement from './pages/UserManagement';
 import Cart from './components/Cart';
 import Wishlist from './pages/WishList';
 import ProductListing from './pages/ProductListing';
+import ComparePage from './pages/ComparePage';
 import Chatbot from './components/Chatbot';
 import SimpleChatbot from './components/SimpleChatbot';
 
@@ -113,11 +117,13 @@ const AdminLayout = ({ children }) => {
 // Component to connect cart context with notification context
 const NotificationConnector = () => {
   const { registerNotificationCallback } = useCart();
+  const { registerNotificationCallback: registerCompareNotifications } = useCompare();
   const notificationMethods = useNotification();
 
   useEffect(() => {
     registerNotificationCallback(notificationMethods);
-  }, [registerNotificationCallback, notificationMethods]);
+    registerCompareNotifications(notificationMethods);
+  }, [registerNotificationCallback, registerCompareNotifications, notificationMethods]);
 
   return null;
 };
@@ -146,11 +152,15 @@ function App() {
     <AuthProvider>
       <NotificationProvider>
         <CartProvider>
-          <Router>
-            <div className="App">
-              <AppContent selectedRole={selectedRole} />
-            </div>
-          </Router>
+          <CompareProvider>
+            <WishlistProvider>
+              <Router>
+                <div className="App">
+                  <AppContent selectedRole={selectedRole} />
+                </div>
+              </Router>
+            </WishlistProvider>
+          </CompareProvider>
         </CartProvider>
       </NotificationProvider>
     </AuthProvider>
@@ -167,6 +177,9 @@ function AppContent({ selectedRole }) {
       
       {userRole !== 'admin' && <Header />}
       
+      {/* Compare floating button - available on all user pages */}
+      {userRole !== 'admin' && <CompareFloatingButton />}
+      
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
@@ -178,6 +191,7 @@ function AppContent({ selectedRole }) {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductListing />} />
             <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/compare" element={<ComparePage />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route 

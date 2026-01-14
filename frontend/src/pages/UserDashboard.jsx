@@ -4,10 +4,11 @@ import { FiUser, FiShoppingCart, FiHeart, FiPackage, FiEdit, FiEye, FiMessageSqu
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import { useAuth } from '../context/authContext';
 import { useCart } from '../context/cartContext';
-import {api} from "../utils/api";
-import {formatPrice, formatDate, getStatusColor } from '../utils/helpers';
+import { api } from "../utils/api";
+import { formatPrice, formatDate, getStatusColor } from '../utils/helpers';
 import Chatbot from '../components/Chatbot';
 import Image from '../components/Image';
+import { constructImageUrl } from '../utils/imageUtils';
 
 const MIN_REVIEW_LENGTH = 20;
 
@@ -50,16 +51,16 @@ const UserDashboard = () => {
   const loadUserData = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Load data in a specific order to prioritize what's most important
       const [ordersData, profileDataResponse] = await Promise.all([
         api.getUserOrders().catch(() => []), // Return empty array if fails
         api.getProfile().catch(() => ({}))   // Return empty object if fails
       ]);
-      
+
       // Set initial data
       setOrders(ordersData || []);
-      
+
       // Update profile data if available
       const profileSource = profileDataResponse?.data?.user || profileDataResponse?.user;
       if (profileSource) {
@@ -71,14 +72,14 @@ const UserDashboard = () => {
           address: profileSource.address || prev.address
         }));
       }
-      
+
       // Load secondary data (reviews and reviewable products)
       try {
         const [reviewableData, reviewsData] = await Promise.all([
           api.getReviewableProducts().catch(() => []),
           api.getUserReviews().catch(() => [])
         ]);
-        
+
         setReviewableProducts(reviewableData || []);
         setUserReviews(reviewsData || []);
       } catch (error) {
@@ -133,18 +134,18 @@ const UserDashboard = () => {
     notification.style.alignItems = 'center';
     notification.style.gap = '8px';
     notification.style.transition = 'all 0.3s ease-in-out';
-    
+
     const icon = document.createElement('span');
     icon.textContent = type === 'success' ? '✓' : '!';
     icon.style.fontWeight = 'bold';
     icon.style.fontSize = '16px';
-    
+
     const messageText = document.createElement('span');
     messageText.textContent = message;
-    
+
     notification.appendChild(icon);
     notification.appendChild(messageText);
-    
+
     if (type === 'success') {
       notification.style.backgroundColor = '#d1fae5';
       notification.style.color = '#065f46';
@@ -154,9 +155,9 @@ const UserDashboard = () => {
       notification.style.color = '#b91c1c';
       notification.style.borderLeft = '4px solid #ef4444';
     }
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto-remove the notification after 5 seconds
     setTimeout(() => {
       notification.style.opacity = '0';
@@ -167,29 +168,29 @@ const UserDashboard = () => {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Prevent multiple submissions
     if (reviewForm.isSubmitting) return;
-    
+
     try {
       // Validate form
       const trimmedComment = reviewForm.comment.trim();
-      
+
       // Show error if comment is too short
       if (trimmedComment.length < MIN_REVIEW_LENGTH) {
         showNotification(`Review must be at least ${MIN_REVIEW_LENGTH} characters long`, 'error');
         return;
       }
-      
+
       // Check if we have all required data
       if (!reviewModal?.product?._id || !reviewModal?.orderId) {
         showNotification('Missing required information. Please try again.', 'error');
         return;
       }
-      
+
       // Set loading state
       setReviewForm(prev => ({ ...prev, isSubmitting: true }));
-      
+
       // Log the review data for debugging
       console.log(reviewModal.isEditing ? 'Updating review:' : 'Submitting review:', {
         productId: reviewModal.product._id,
@@ -198,7 +199,7 @@ const UserDashboard = () => {
         comment: trimmedComment,
         ...(reviewModal.isEditing && { reviewId: reviewModal.reviewId })
       });
-      
+
       let response;
       if (reviewModal.isEditing) {
         // Update existing review
@@ -215,63 +216,63 @@ const UserDashboard = () => {
           comment: trimmedComment
         });
       }
-      
+
       console.log('Review submission response:', response);
-      
+
       // Check for successful response - handle both direct data and response.data
       const responseData = response?.data || response;
       if (!responseData || responseData.success === false) {
         throw new Error(responseData?.message || 'Failed to submit review');
       }
-      
+
       // Show success message
       showNotification(
-        reviewModal.isEditing 
-          ? 'Review updated successfully!' 
+        reviewModal.isEditing
+          ? 'Review updated successfully!'
           : 'Thank you for your review!'
       );
-      
+
       // Close the modal and reset the form
       setReviewModal(null);
       setReviewForm({ rating: 5, comment: '', isSubmitting: false });
-      
+
       // Refresh the reviews and reviewable products
       try {
         const [reviewsResponse, reviewableResponse] = await Promise.all([
           api.getUserReviews(),
           api.getReviewableProducts()
         ]);
-        
+
         // Handle the responses - check both direct response and response.data
-        const reviewsData = Array.isArray(reviewsResponse) 
-          ? reviewsResponse 
+        const reviewsData = Array.isArray(reviewsResponse)
+          ? reviewsResponse
           : (Array.isArray(reviewsResponse?.data) ? reviewsResponse.data : []);
-        
-        const reviewableData = Array.isArray(reviewableResponse) 
-          ? reviewableResponse 
+
+        const reviewableData = Array.isArray(reviewableResponse)
+          ? reviewableResponse
           : (Array.isArray(reviewableResponse?.data) ? reviewableResponse.data : []);
-        
+
         setUserReviews(reviewsData);
         setReviewableProducts(reviewableData);
       } catch (refreshError) {
         console.error('Error refreshing data:', refreshError);
         // Don't show error to user for refresh failure
       }
-      
+
     } catch (error) {
       console.error('Review submission error:', {
         error,
         response: error.response,
         message: error.message
       });
-      
+
       let errorMessage = 'Failed to submit review. Please try again.';
-      
+
       if (error.response) {
         // Server responded with an error status
-        errorMessage = error.response.data?.message || 
-                     error.response.statusText || 
-                     `Server error: ${error.response.status}`;
+        errorMessage = error.response.data?.message ||
+          error.response.statusText ||
+          `Server error: ${error.response.status}`;
       } else if (error.request) {
         // Request was made but no response received
         errorMessage = 'No response from server. Please check your internet connection.';
@@ -279,7 +280,7 @@ const UserDashboard = () => {
         // Something else happened
         errorMessage = error.message;
       }
-      
+
       showNotification(errorMessage, 'error');
     } finally {
       // Always reset the submitting state
@@ -330,29 +331,29 @@ const UserDashboard = () => {
   };
 
   const openEditReviewModal = (review) => {
-    setReviewModal({ 
-      product: review.product, 
+    setReviewModal({
+      product: review.product,
       orderId: review.order,
       reviewId: review._id,
       isEditing: true
     });
-    setReviewForm({ 
-      rating: review.rating, 
-      comment: review.comment, 
-      isSubmitting: false 
+    setReviewForm({
+      rating: review.rating,
+      comment: review.comment,
+      isSubmitting: false
     });
   };
 
   const openReviewModal = (product, orderId) => {
-    setReviewModal({ 
-      product, 
+    setReviewModal({
+      product,
       orderId,
       isEditing: false
     });
-    setReviewForm({ 
-      rating: 5, 
-      comment: '', 
-      isSubmitting: false 
+    setReviewForm({
+      rating: 5,
+      comment: '',
+      isSubmitting: false
     });
   };
 
@@ -377,8 +378,8 @@ const UserDashboard = () => {
   const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
 
   const renderReviewableProduct = useCallback((item) => (
-    <div 
-      key={`${item.orderId}-${item.product._id}`} 
+    <div
+      key={`${item.orderId}-${item.product._id}`}
       className="card hover:shadow-md transition-all duration-300"
       style={{
         border: '1px solid #e2e8f0',
@@ -408,7 +409,7 @@ const UserDashboard = () => {
         }}>
           {item.product.name}
         </h4>
-        
+
         <div style={{ marginTop: 'auto' }}>
           <div style={{
             display: 'flex',
@@ -419,7 +420,7 @@ const UserDashboard = () => {
             color: '#64748b'
           }}>
             <span>Qty: {item.quantity}</span>
-            <span style={{ 
+            <span style={{
               fontWeight: '600',
               color: '#1e293b',
               fontSize: '1.125rem'
@@ -427,7 +428,7 @@ const UserDashboard = () => {
               {formatPrice(item.price * item.quantity)}
             </span>
           </div>
-          
+
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -440,7 +441,7 @@ const UserDashboard = () => {
           }}>
             <span>Ordered on {formatDate(item.orderDate)}</span>
           </div>
-          
+
           <button
             onClick={() => openReviewModal(item.product, item.orderId)}
             className="btn btn-primary"
@@ -468,8 +469,8 @@ const UserDashboard = () => {
   const renderLoadingSkeleton = useCallback((count = 3) => (
     <div className="grid grid-1 md:grid-2 lg:grid-3" style={{ gap: '1.25rem' }}>
       {Array.from({ length: count }).map((_, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           className="card"
           style={{
             border: '1px solid #e2e8f0',
@@ -552,7 +553,7 @@ const UserDashboard = () => {
           </div>
           <p className="text-gray-600">{review.comment}</p>
           <p className="text-sm text-gray-500 mt-2">
-            {review.updatedAt !== review.createdAt 
+            {review.updatedAt !== review.createdAt
               ? `Updated on ${new Date(review.updatedAt).toLocaleDateString()}`
               : `Reviewed on ${new Date(review.createdAt).toLocaleDateString()}`}
           </p>
@@ -575,17 +576,17 @@ const UserDashboard = () => {
         overflow: 'hidden'
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <h1 style={{ 
-            margin: '0 0 0.5rem 0', 
-            fontSize: '2rem', 
+          <h1 style={{
+            margin: '0 0 0.5rem 0',
+            fontSize: '2rem',
             fontWeight: '700',
             color: 'white'
           }}>
             Welcome back, {user?.name?.split(' ')[0] || 'User'}! 👋
           </h1>
-          <p style={{ 
-            margin: 0, 
-            fontSize: '1rem', 
+          <p style={{
+            margin: 0,
+            fontSize: '1rem',
             opacity: 0.9,
             color: 'white'
           }}>
@@ -883,8 +884,8 @@ const UserDashboard = () => {
           </div>
           <div className="card-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <Link 
-                to="/cart" 
+              <Link
+                to="/cart"
                 className="btn btn-primary"
                 style={{
                   display: 'flex',
@@ -900,9 +901,9 @@ const UserDashboard = () => {
                 <FiShoppingCart size={18} />
                 View Cart ({getCartItemsCount()} items)
               </Link>
-              
-              <Link 
-                to="/wishlist" 
+
+              <Link
+                to="/wishlist"
                 className="btn btn-secondary"
                 style={{
                   display: 'flex',
@@ -918,9 +919,9 @@ const UserDashboard = () => {
                 <FiHeart size={18} />
                 My Wishlist ({wishlist.length} items)
               </Link>
-              
-              <Link 
-                to="/products" 
+
+              <Link
+                to="/products"
                 className="btn btn-success"
                 style={{
                   display: 'flex',
@@ -942,7 +943,7 @@ const UserDashboard = () => {
       </div>
 
       {/* Order History */}
-      <div className="card" style={{ 
+      <div className="card" style={{
         marginTop: '2rem',
         boxShadow: 'var(--shadow)',
         border: '1px solid var(--border-light)'
@@ -1042,7 +1043,7 @@ const UserDashboard = () => {
                 </thead>
                 <tbody>
                   {orders.map((order, index) => (
-                    <tr 
+                    <tr
                       key={order.id}
                       style={{
                         borderBottom: '1px solid var(--border-light)',
@@ -1096,12 +1097,12 @@ const UserDashboard = () => {
       </div>
 
       {/* Products to Review */}
-      <div className="card" style={{ 
-        marginTop: '2rem', 
+      <div className="card" style={{
+        marginTop: '2rem',
         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         border: '1px solid #e5e7eb'
       }}>
-        <div className="card-header" style={{ 
+        <div className="card-header" style={{
           background: 'linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%)',
           color: 'white',
           borderBottom: 'none',
@@ -1172,7 +1173,7 @@ const UserDashboard = () => {
       </div>
 
       {/* My Reviews */}
-      <div className="card" style={{ 
+      <div className="card" style={{
         marginTop: '2rem',
         boxShadow: 'var(--shadow)',
         border: '1px solid var(--border-light)'
@@ -1244,7 +1245,7 @@ const UserDashboard = () => {
                 const diffTime = Math.abs(now - reviewDate);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 let timeAgo = '';
-                
+
                 if (diffDays < 1) {
                   const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
                   timeAgo = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
@@ -1257,10 +1258,10 @@ const UserDashboard = () => {
                   const years = Math.floor(diffDays / 365);
                   timeAgo = `${years} ${years === 1 ? 'year' : 'years'} ago`;
                 }
-                
+
                 return (
-                  <div 
-                    key={review._id} 
+                  <div
+                    key={review._id}
                     style={{
                       background: 'var(--bg-secondary)',
                       borderRadius: '0.5rem',
@@ -1290,7 +1291,7 @@ const UserDashboard = () => {
                           backgroundColor: 'var(--bg-primary)'
                         }}>
                           <Image
-                            src={review.product?.image || '/placeholder-product.jpg'}
+                            src={constructImageUrl(review.product?.image)}
                             alt={review.product?.name || 'Product'}
                             style={{
                               width: '100%',
@@ -1300,7 +1301,7 @@ const UserDashboard = () => {
                             }}
                           />
                         </div>
-                        
+
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
                             display: 'flex',
@@ -1320,7 +1321,27 @@ const UserDashboard = () => {
                             }}>
                               {review.product?.name || 'Product'}
                             </h4>
-                            
+
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              flexShrink: 0,
+                              backgroundColor: 'var(--accent-50)',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '9999px'
+                            }}>
+                              {renderStars(review.rating)}
+                              <span style={{
+                                marginLeft: '0.75rem',
+                                fontSize: '0.875rem',
+                                color: '#4f46e5',
+                                fontWeight: '500'
+                              }}>
+                                {['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][reviewForm.rating - 1]}
+                              </span>
+                            </div>
+
                             <div style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -1341,7 +1362,7 @@ const UserDashboard = () => {
                               </span>
                             </div>
                           </div>
-                          
+
                           <p style={{
                             margin: '0.5rem 0 0',
                             fontSize: '0.875rem',
@@ -1350,7 +1371,7 @@ const UserDashboard = () => {
                           }}>
                             {review.comment}
                           </p>
-                          
+
                           <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -1363,7 +1384,7 @@ const UserDashboard = () => {
                             <span>•</span>
                             <span>{timeAgo}</span>
                             <div style={{ flex: 1 }}></div>
-                            <button 
+                            <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1404,8 +1425,8 @@ const UserDashboard = () => {
 
       {/* Review Modal */}
       {reviewModal && (
-        <div 
-          className="modal-overlay" 
+        <div
+          className="modal-overlay"
           style={{
             position: 'fixed',
             top: 0,
@@ -1481,7 +1502,7 @@ const UserDashboard = () => {
                 &times;
               </button>
             </div>
-            
+
             <div className="modal-body" style={{ padding: '1.5rem' }}>
               <div className="flex items-start space-x-4 mb-6">
                 <div style={{
@@ -1495,7 +1516,7 @@ const UserDashboard = () => {
                   position: 'relative'
                 }}>
                   <img
-                    src={reviewModal.product.image || '/placeholder-product.jpg'}
+                    src={constructImageUrl(reviewModal.product.image)}
                     alt={reviewModal.product.name}
                     style={{
                       width: '100%',
@@ -1508,7 +1529,7 @@ const UserDashboard = () => {
                     }}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/placeholder-product.jpg';
+                      e.target.src = '/placeholder-product.svg';
                     }}
                     loading="lazy"
                   />
@@ -1544,7 +1565,7 @@ const UserDashboard = () => {
                     Your Rating
                     <span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
                   </label>
-                  
+
                   <div style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -1588,7 +1609,7 @@ const UserDashboard = () => {
                         {['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][reviewForm.rating - 1]}
                       </span>
                     </div>
-                    
+
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -1653,7 +1674,7 @@ const UserDashboard = () => {
                     }}>
                       <span>Minimum 20 characters</span>
                       <span>
-                        <span style={{ 
+                        <span style={{
                           fontWeight: reviewForm.comment.length >= 450 ? '600' : '400',
                           color: reviewForm.comment.length >= 450 ? (reviewForm.comment.length >= 500 ? '#ef4444' : '#f59e0b') : 'inherit'
                         }}>
