@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
   const { user, token } = useAuth(); // Get user and token from auth context
 
   // API Base URL - adjust according to your backend
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
   // Helper function to make API calls
   const apiCall = async (endpoint, options = {}) => {

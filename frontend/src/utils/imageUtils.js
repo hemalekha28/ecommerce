@@ -10,7 +10,7 @@ export const constructImageUrl = (imagePath) => {
     }
 
     // Construct backend URL
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_API_URL;
 
     // Clean the path - remove leading slashes
     let cleanPath = imagePath.trim().replace(/^\/+/g, '');
