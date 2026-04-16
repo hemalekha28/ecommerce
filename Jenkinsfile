@@ -25,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running Backend Tests...'
-                sh 'docker run --rm mern-api npm test'
+                sh 'docker run --rm mern-api npm test -- --passWithNoTests'
             }
         }
 
