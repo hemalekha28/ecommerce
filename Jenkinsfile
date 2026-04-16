@@ -15,40 +15,67 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build API') {
             steps {
-                echo 'Building images with Docker Compose...'
-                // This builds the images so we have node/npm ready inside them
-                sh 'docker compose build'
+                echo 'Building Backend Image...'
+                sh 'docker build -t mern-api ./backend'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running tests INSIDE the built Docker image...'
-                // This runs the test command in a temporary backend container
-                sh 'docker compose run --rm backend npm test'
+                echo 'Running Backend Tests...'
+                sh 'docker run --rm mern-api npm test'
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                echo 'Building Frontend Image...'
+                sh 'docker build --build-arg VITE_API_URL=http://localhost:5000 -t mern-frontend ./frontend'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Finishing deployment...'
-                // Starts all containers (backend, frontend, mongodb)
-                sh 'docker compose up -d'
+                echo 'Redeploying Containers...'
+                // Ensure network exists
+                sh 'docker network create mern-network || true'
+                
+                // Cleanup old containers
+                sh 'docker stop mern-api mern-frontend mern-mongodb || true'
+                sh 'docker rm mern-api mern-frontend mern-mongodb || true'
+                
+                // 1. Run MongoDB
+                sh 'docker run -d --name mern-mongodb -v mongo-data:/data/db --network mern-network mongo:latest'
+                
+                // 2. Run Backend
+                sh """
+                docker run -d --name mern-api \
+                --network mern-network \
+                -e MONGODB_URI=mongodb://mern-mongodb:27017/ecommerce \
+                -e JWT_SECRET=${JWT_SECRET} \
+                -e RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID} \
+                -e RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET} \
+                -p 5000:5000 \
+                mern-api
+                """
+                
+                // 3. Run Frontend
+                sh 'docker run -d --name mern-frontend --network mern-network -p 80:80 mern-frontend'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline completed.'
+            echo 'Pipeline finished.'
         }
         success {
-            echo '✅ Automation Successful!'
+            echo '✅ Deployment successful!'
         }
         failure {
-            echo '❌ Automation Failed. Check the container logs.'
+            echo '❌ Deployment failed.'
         }
     }
 }
