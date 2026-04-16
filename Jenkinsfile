@@ -38,31 +38,33 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Redeploying Containers...'
-                // Ensure network exists
-                sh 'docker network create mern-network || true'
-                
-                // Cleanup old containers
-                sh 'docker stop mern-api mern-frontend mern-mongodb || true'
-                sh 'docker rm mern-api mern-frontend mern-mongodb || true'
-                
-                // 1. Run MongoDB
-                sh 'docker run -d --name mern-mongodb -v mongo-data:/data/db --network mern-network mongo:latest'
-                
-                // 2. Run Backend
+                echo 'Force cleaning and redeploying...'
                 sh """
+                # Force remove old containers if they exist (-f handles stop + rm)
+                docker rm -f mern-api mern-frontend mern-mongodb || true
+                
+                # Ensure network exists
+                docker network create mern-network || true
+                
+                # 1. Run MongoDB
+                docker run -d --name mern-mongodb \
+                -v mongo-data:/data/db \
+                --network mern-network \
+                mongo:latest
+                
+                # 2. Run Backend
                 docker run -d --name mern-api \
                 --network mern-network \
-                -e MONGODB_URI=mongodb://mern-mongodb:27017/ecommerce \
+                -e MONGODB_URI=${MONGODB_URI} \
                 -e JWT_SECRET=${JWT_SECRET} \
                 -e RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID} \
                 -e RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET} \
                 -p 5000:5000 \
                 mern-api
-                """
                 
-                // 3. Run Frontend
-                sh 'docker run -d --name mern-frontend --network mern-network -p 80:80 mern-frontend'
+                # 3. Run Frontend
+                docker run -d --name mern-frontend --network mern-network -p 80:80 mern-frontend
+                """
             }
         }
     }
