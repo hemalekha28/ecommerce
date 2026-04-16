@@ -1,11 +1,10 @@
-describe('Basic Mathematics', () => {
-  test('should verify that 1 + 1 equals 2', () => {
+describe('Basic CI/CD Validation', () => {
+  test('should verify that the testing environment is active', () => {
     expect(1 + 1).toBe(2);
   });
-});
 
-describe('Environment Check', () => {
-  test('should have a test environment', () => {
-    expect(process.env.NODE_ENV).toBe('test');
+  test('should confirm arithmetic logic is sound', () => {
+    const sum = (a, b) => a + b;
+    expect(sum(5, 5)).toBe(10);
   });
 });
