@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy dependency files
 COPY package*.json ./
 
-# Install ONLY production dependencies
-RUN npm install --production
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the backend code
 COPY . .
