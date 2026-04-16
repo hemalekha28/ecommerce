@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Tells Jenkins to use the NodeJS tool we configured in Global Tool Configuration
-        nodejs 'node20'
-    }
-
     environment {
         MONGODB_URI = credentials('MONGODB_URI')
         JWT_SECRET  = credentials('JWT_SECRET')
@@ -20,45 +15,40 @@ pipeline {
             }
         }
 
-        stage('Install') {
+        stage('Build') {
             steps {
-                echo 'Installing dependencies with Jenkins NodeJS tool...'
-                dir('backend') {
-                    sh 'npm install'
-                }
-                dir('frontend') {
-                    sh 'npm install'
-                }
+                echo 'Building images with Docker Compose...'
+                // This builds the images so we have node/npm ready inside them
+                sh 'docker compose build'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running Backend Tests...'
-                dir('backend') {
-                    sh 'npm test'
-                }
+                echo 'Running tests INSIDE the built Docker image...'
+                // This runs the test command in a temporary backend container
+                sh 'docker compose run --rm backend npm test'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying to Production using Docker Compose...'
-                sh 'docker compose down'
-                sh 'docker compose up -d --build'
+                echo 'Finishing deployment...'
+                // Starts all containers (backend, frontend, mongodb)
+                sh 'docker compose up -d'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline finished.'
+            echo 'Pipeline completed.'
         }
         success {
-            echo '✅ Deployment successful!'
+            echo '✅ Automation Successful!'
         }
         failure {
-            echo '❌ Deployment failed.'
+            echo '❌ Automation Failed. Check the container logs.'
         }
     }
 }
