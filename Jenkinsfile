@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        // These ID names must match exactly what you created in Jenkins Credentials
         MONGODB_URI = credentials('MONGODB_URI')
         JWT_SECRET  = credentials('JWT_SECRET')
         RAZORPAY_KEY_ID = credentials('RAZORPAY_KEY_ID')
@@ -16,21 +17,11 @@ pipeline {
         }
 
         stage('Build & Test') {
-            agent {
-                // Use a Node.js container to run npm commands
-                docker { 
-                    image 'node:20' 
-                }
-            }
             steps {
-                echo 'Installing and Testing inside a Node container...'
-                dir('backend') {
-                    sh 'npm install'
-                    sh 'npm test'
-                }
-                dir('frontend') {
-                    sh 'npm install'
-                }
+                echo 'Running npm commands in a temporary Node container...'
+                // We mount the workspace into a Node container and run the commands manually
+                // This avoids the 'Invalid agent type docker' error
+                sh 'docker run --rm -v ${WORKSPACE}:/app -w /app node:20 sh -c "cd backend && npm install && npm test && cd ../frontend && npm install"'
             }
         }
 
