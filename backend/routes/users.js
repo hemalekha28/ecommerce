@@ -1,4 +1,3 @@
-// routes/users.js
 const express = require('express');
 const router = express.Router();
 const { protect, admin } = require('../middlewares/auth');
@@ -25,14 +24,14 @@ router.get('/', protect, admin, async (req, res) => {
 router.get('/:id', protect, admin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: user
@@ -50,7 +49,7 @@ router.get('/:id', protect, admin, async (req, res) => {
 router.put('/:id', protect, admin, async (req, res) => {
   try {
     const { name, email, role } = req.body;
-    
+
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({
@@ -58,14 +57,14 @@ router.put('/:id', protect, admin, async (req, res) => {
         message: 'User not found'
       });
     }
-    
+
     // Update fields
     if (name) user.name = name;
     if (email) user.email = email;
     if (role) user.role = role;
-    
+
     const updatedUser = await user.save();
-    
+
     res.json({
       success: true,
       data: {
@@ -88,16 +87,16 @@ router.put('/:id', protect, admin, async (req, res) => {
 router.delete('/:id', protect, admin, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
-    
+
     await user.deleteOne();
-    
+
     res.json({
       success: true,
       message: 'User deleted successfully'
@@ -117,7 +116,7 @@ router.get('/stats/overview', protect, admin, async (req, res) => {
     const totalUsers = await User.countDocuments();
     const adminUsers = await User.countDocuments({ role: 'admin' });
     const regularUsers = await User.countDocuments({ role: 'user' });
-    
+
     res.json({
       success: true,
       data: {

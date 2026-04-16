@@ -6,8 +6,6 @@ const { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } = require("../u
 exports.createOrder = async (req, res) => {
   try {
     const { products, shippingAddress } = req.body;
-
-    // Validate products and calculate total
     let total = 0;
     const orderProducts = [];
 

@@ -22,7 +22,6 @@ const Home = () => {
       try {
         const products = await api.getProducts();
 
-        // Get top-rated products as featured
         const featured = [...products].sort((a, b) => b.rating - a.rating).slice(0, 8);
         setFeaturedProducts(featured);
       } catch (error) {
