@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Secrets should be configured in Jenkins Credential Manager
         MONGODB_URI = credentials('MONGODB_URI')
         JWT_SECRET  = credentials('JWT_SECRET')
         RAZORPAY_KEY_ID = credentials('RAZORPAY_KEY_ID')
@@ -12,16 +11,22 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                // Clones the code from the Git repository associated with the job
                 checkout scm
             }
         }
 
-        stage('Install') {
+        stage('Build & Test') {
+            agent {
+                // Use a Node.js container to run npm commands
+                docker { 
+                    image 'node:20' 
+                }
+            }
             steps {
-                echo 'Installing dependencies...'
+                echo 'Installing and Testing inside a Node container...'
                 dir('backend') {
                     sh 'npm install'
+                    sh 'npm test'
                 }
                 dir('frontend') {
                     sh 'npm install'
@@ -29,19 +34,9 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                echo 'Running Backend Tests...'
-                dir('backend') {
-                    sh 'npm test'
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
-                echo 'Deploying to Production using Docker Compose...'
-                // Restart containers with the latest builds
+                echo 'Deploying to Production...'
                 sh 'docker compose down'
                 sh 'docker compose up -d --build'
             }
@@ -56,7 +51,7 @@ pipeline {
             echo '✅ Deployment successful!'
         }
         failure {
-            echo '❌ Deployment failed. Please check the Jenkins logs.'
+            echo '❌ Deployment failed.'
         }
     }
 }
