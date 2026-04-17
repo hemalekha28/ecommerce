@@ -36,34 +36,28 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Force cleaning and redeploying...'
+                echo 'Deploying to Kubernetes cluster...'
                 sh """
-                # Force remove old containers if they exist (-f handles stop + rm)
-                docker rm -f mern-api mern-frontend mern-mongodb || true
-                
-                # Ensure network exists
-                docker network create mern-network || true
-                
-                # 1. Run MongoDB
-                docker run -d --name mern-mongodb \
-                -v mongo-data:/data/db \
-                --network mern-network \
-                mongo:latest
-                
-                # 2. Run Backend
-                docker run -d --name mern-api \
-                --network mern-network \
-                -e MONGODB_URI=${MONGODB_URI} \
-                -e JWT_SECRET=${JWT_SECRET} \
-                -e RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID} \
-                -e RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET} \
-                -p 5000:5000 \
-                mern-api
-                
-                # 3. Run Frontend
-                docker run -d --name mern-frontend --network mern-network -p 80:80 mern-frontend
+                # 1. Create/Update Kubernetes Secrets
+                # We delete first to ensure the latest credentials from Jenkins are used
+                kubectl delete secret mern-secrets --ignore-not-found
+                kubectl create secret generic mern-secrets \
+                    --from-literal=mongodb-uri=${MONGODB_URI} \
+                    --from-literal=jwt-secret=${JWT_SECRET} \
+                    --from-literal=razorpay-key-id=${RAZORPAY_KEY_ID} \
+                    --from-literal=razorpay-key-secret=${RAZORPAY_KEY_SECRET}
+
+                # 2. Apply Storage and MongoDB Configuration
+                kubectl apply -f k8s/mongodb.yaml
+
+                # 3. Apply API, Frontend, and Auto-scaler configuration
+                kubectl apply -f k8s/app-deploy.yaml
+
+                # 4. Force a rollout restart to pick up latest images
+                kubectl rollout restart deployment mern-api
+                kubectl rollout restart deployment mern-frontend
                 """
             }
         }
