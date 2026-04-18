@@ -2,10 +2,14 @@ pipeline {
     agent any
 
     environment {
+        // App Credentials
         MONGODB_URI = credentials('MONGODB_URI')
         JWT_SECRET  = credentials('JWT_SECRET')
         RAZORPAY_KEY_ID = credentials('RAZORPAY_KEY_ID')
         RAZORPAY_KEY_SECRET = credentials('RAZORPAY_KEY_SECRET')
+        
+        // Notification Config
+        SLACK_CHANNEL = '#deploy-alerts'
     }
 
     stages {
@@ -24,54 +28,74 @@ pipeline {
 
         stage('Test') {
             steps {
-                echo 'Running Backend Tests...'
-                sh 'docker run --rm mern-api npm test -- --passWithNoTests'
+                // Module 3: Catch error to allow cleanup but mark build as failed
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    echo 'Starting Test Environment...'
+                    // Module 2: docker compose up for testing
+                    sh 'docker-compose up -d'
+                    
+                    echo 'Running Backend Tests...'
+                    // Run tests in the built image
+                    sh 'docker run --rm mern-api npm test -- --passWithNoTests'
+                }
             }
         }
 
         stage('Build Frontend') {
+            when {
+                // Module 3: Only run if tests passed
+                expression { currentBuild.result == 'SUCCESS' || currentBuild.result == null }
+            }
             steps {
                 echo 'Building Frontend Image...'
                 sh 'docker build --build-arg VITE_API_URL=http://localhost:5000 -t mern-frontend ./frontend'
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy') {
+            when {
+                // Module 3: Only run if all previous stages succeeded
+                expression { currentBuild.result == 'SUCCESS' || currentBuild.result == null }
+            }
             steps {
-                echo 'Deploying to Kubernetes cluster...'
-                sh """
-                # 1. Create/Update Kubernetes Secrets
-                # We delete first to ensure the latest credentials from Jenkins are used
-                kubectl delete secret mern-secrets --ignore-not-found
-                kubectl create secret generic mern-secrets \
-                    --from-literal=mongodb-uri=${MONGODB_URI} \
-                    --from-literal=jwt-secret=${JWT_SECRET} \
-                    --from-literal=razorpay-key-id=${RAZORPAY_KEY_ID} \
-                    --from-literal=razorpay-key-secret=${RAZORPAY_KEY_SECRET}
-
-                # 2. Apply Storage and MongoDB Configuration
-                kubectl apply -f k8s/mongodb.yaml
-
-                # 3. Apply API, Frontend, and Auto-scaler configuration
-                kubectl apply -f k8s/app-deploy.yaml
-
-                # 4. Force a rollout restart to pick up latest images
-                kubectl rollout restart deployment mern-api
-                kubectl rollout restart deployment mern-frontend
-                """
+                echo 'Deploying MERN Application...'
+                // Module 1: Using docker run for deployment
+                sh 'docker stop mern-api mern-frontend || true'
+                sh 'docker rm mern-api mern-frontend || true'
+                sh "docker run -d --name mern-api -p 5000:5000 -e MONGODB_URI=${MONGODB_URI} -e JWT_SECRET=${JWT_SECRET} mern-api"
+                sh "docker run -d --name mern-frontend -p 3000:3000 mern-frontend"
             }
         }
     }
 
+    // Module 1: Post block for orchestration
     post {
         always {
-            echo 'Pipeline finished.'
+            echo 'Pipeline completed. Cleaning up test containers...'
+            // Module 2: Always teardown docker-compose
+            sh 'docker-compose down'
         }
         success {
             echo '✅ Deployment successful!'
+            // Module 5: Slack notification on success
+            slackSend channel: env.SLACK_CHANNEL, 
+                      color: 'good', 
+                      message: "PASSED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
         }
         failure {
-            echo '❌ Deployment failed.'
+            echo '❌ Pipeline failed.'
+            // Module 4: Email notification on failure
+            mail to: 'admin@yourdomain.com',
+                 subject: "Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+                 body: """The pipeline failed!
+                          Branch: ${env.BRANCH_NAME}
+                          Status: ${currentBuild.result}
+                          Console Log: ${env.BUILD_URL}console"""
+
+            // Module 5: Slack notification on failure
+            slackSend channel: env.SLACK_CHANNEL, 
+                      color: 'danger', 
+                      message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' at stage '${env.STAGE_NAME}' (${env.BUILD_URL})"
         }
     }
 }
