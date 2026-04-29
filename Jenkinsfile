@@ -56,18 +56,26 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Kubernetes') {
             when {
-                // Module 3: Only run if all previous stages succeeded
                 expression { currentBuild.result == 'SUCCESS' || currentBuild.result == null }
             }
             steps {
-                echo 'Deploying MERN Application...'
-                // Module 1: Using docker run for deployment
-                sh 'docker stop mern-api mern-frontend || true'
-                sh 'docker rm mern-api mern-frontend || true'
-                sh "docker run -d --name mern-api -p 5000:5000 -e MONGODB_URI=${MONGODB_URI} -e JWT_SECRET=${JWT_SECRET} mern-api"
-                sh "docker run -d --name mern-frontend -p 3000:3000 mern-frontend"
+                echo 'Deploying to Kubernetes Cluster...'
+                script {
+                    // Create secrets if they don't exist
+                    sh "kubectl create secret generic mern-secrets \
+                        --from-literal=MONGODB_URI=${MONGODB_URI} \
+                        --from-literal=JWT_SECRET=${JWT_SECRET} \
+                        --dry-run=client -o yaml | kubectl apply -f -"
+                    
+                    // Apply all manifests in the k8s directory
+                    sh 'kubectl apply -f k8s/'
+                    
+                    // Verify the rollout
+                    sh 'kubectl rollout status deployment/mern-api'
+                    sh 'kubectl rollout status deployment/mern-frontend'
+                }
             }
         }
     }

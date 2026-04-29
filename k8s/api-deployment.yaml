@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mern-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mern-api
+  template:
+    metadata:
+      labels:
+        app: mern-api
+    spec:
+      containers:
+      - name: api
+        image: mern-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: mern-secrets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mern-api-service
+spec:
+  selector:
+    app: mern-api
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP

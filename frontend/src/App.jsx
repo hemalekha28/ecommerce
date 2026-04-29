@@ -32,7 +32,7 @@ const RoleSelector = ({ onRoleSelect }) => {
     <div className="role-selector">
       <div className="container">
         <div className="hero">
-          <h1>Welcome to E-Shop</h1>
+          <h1>Welcome to Our E-Shop</h1>
           <p>Please select your role to continue</p>
           <div className="flex justify-center gap-4 mt-4">
             <button 

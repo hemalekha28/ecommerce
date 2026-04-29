@@ -36,6 +36,9 @@ const Wishlist = () => {
   if (wishlist.length === 0) {
     return (
       <div className="container" style={{ padding: '2rem 0', minHeight: '60vh' }}>
+        <div className="bg-green-100 text-green-800 p-2 rounded mb-4 text-center font-bold">
+          🚀 Pipeline Automation Test: Active
+        </div>
         <div className="card" style={{
           padding: '4rem 2rem',
           textAlign: 'center',
@@ -99,6 +102,9 @@ const Wishlist = () => {
 
   return (
     <div className="container" style={{ padding: '2rem 0' }}>
+      <div className="bg-green-100 text-green-800 p-2 rounded mb-4 text-center font-bold">
+        🚀 Pipeline Automation Test: Active
+      </div>
       {/* Header Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
