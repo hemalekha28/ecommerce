@@ -36,7 +36,7 @@ const Login = () => {
       if (result.success) {
         navigate(from, { replace: true });
       } else {
-        setError(result.message || 'Login failed. Please check your credentials.');
+        setError(result.message || 'Login fails. Please check your credentials.');
       }
     } catch (err) {
       console.error('Login error:', err);
