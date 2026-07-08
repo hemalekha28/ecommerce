@@ -31,7 +31,7 @@ pipeline {
         }
 
         stage('Test') {
-            steps {9
+            steps {
                 // Module 3: Catch error to allow cleanup but mark build as failed
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     echo 'Clearing old containers to avoid conflicts...'
