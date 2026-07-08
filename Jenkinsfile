@@ -94,9 +94,9 @@ pipeline {
         success {
             echo '✅ Deployment successful!'
             // Module 5: Slack notification on success
-            slackSend channel: env.SLACK_CHANNEL, 
-                      color: 'good', 
-                      message: "PASSED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+            // slackSend channel: env.SLACK_CHANNEL, 
+            //           color: 'good', 
+            //           message: "PASSED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
         }
         failure {
             echo '❌ Pipeline failed.'
@@ -109,9 +109,9 @@ pipeline {
             //               Console Log: ${env.BUILD_URL}console"""
 
             // Module 5: Slack notification on failure
-            slackSend channel: env.SLACK_CHANNEL, 
-                      color: 'danger', 
-                      message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' at stage '${env.STAGE_NAME}' (${env.BUILD_URL})"
+            // slackSend channel: env.SLACK_CHANNEL, 
+            //           color: 'danger', 
+            //           message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' at stage '${env.STAGE_NAME}' (${env.BUILD_URL})"
         }
     }
 }
