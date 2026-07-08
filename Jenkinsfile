@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     environment {
         // App Credentials
         MONGODB_URI = credentials('MONGODB_URI')
@@ -27,7 +31,7 @@ pipeline {
         }
 
         stage('Test') {
-            steps {
+            steps {9
                 // Module 3: Catch error to allow cleanup but mark build as failed
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     echo 'Clearing old containers to avoid conflicts...'
