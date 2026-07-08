@@ -100,13 +100,13 @@ pipeline {
         }
         failure {
             echo '❌ Pipeline failed.'
-            // Module 4: Email notification on failure
-            mail to: 'admin@yourdomain.com',
-                 subject: "Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                 body: """The pipeline failed!
-                          Branch: ${env.BRANCH_NAME}
-                          Status: ${currentBuild.result}
-                          Console Log: ${env.BUILD_URL}console"""
+            // Module 4: Email notification on failure (Commented out as SMTP is not configured)
+            // mail to: 'admin@yourdomain.com',
+            //      subject: "Pipeline Failed: ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
+            //      body: """The pipeline failed!
+            //               Branch: ${env.BRANCH_NAME}
+            //               Status: ${currentBuild.result}
+            //               Console Log: ${env.BUILD_URL}console"""
 
             // Module 5: Slack notification on failure
             slackSend channel: env.SLACK_CHANNEL, 
