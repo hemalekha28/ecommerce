@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const Product = require("../models/Product");
 const User = require("../models/User");
 const { sendOrderConfirmationEmail, sendOrderStatusUpdateEmail } = require("../utils/emailService");
+const { ordersTotal, checkoutFailuresTotal } = require("../utils/metrics");
 
 exports.createOrder = async (req, res) => {
   try {
@@ -19,6 +20,7 @@ exports.createOrder = async (req, res) => {
       }
 
       if (product.stock < item.quantity) {
+        checkoutFailuresTotal.labels('insufficient_stock').inc();
         return res.status(400).json({
           success: false,
           message: `Insufficient stock for product: ${product.name}`
@@ -82,8 +84,12 @@ exports.createOrder = async (req, res) => {
       message: "Order placed successfully", 
       data: { order: newOrder }
     });
+    
+    // Increment Prometheus counter
+    ordersTotal.labels('cash_on_delivery').inc();
   } catch (err) {
     console.error('Error creating order:', err);
+    checkoutFailuresTotal.labels('server_error').inc();
     res.status(500).json({ 
       success: false,
       message: err.message 

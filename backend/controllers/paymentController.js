@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const razorpay = require('../utils/razorpay');
 const { sendOrderConfirmationEmail } = require('../utils/emailService');
+const { ordersTotal, checkoutFailuresTotal } = require('../utils/metrics');
 
 // Create Razorpay order
 const createRazorpayOrder = async (req, res) => {
@@ -45,6 +46,7 @@ const createRazorpayOrder = async (req, res) => {
       message: 'Failed to create payment order',
       error: error.message,
     });
+    checkoutFailuresTotal.labels('razorpay_order_creation_failed').inc();
   }
 };
 
@@ -64,6 +66,11 @@ const verifyPayment = async (req, res) => {
         success: false,
         message: 'Invalid payment signature',
       });
+    }
+
+    // signature mismatch would be caught above
+    if (generatedSignature !== signature) {
+       checkoutFailuresTotal.labels('invalid_signature').inc();
     }
 
     // Create order in database
@@ -101,8 +108,12 @@ const verifyPayment = async (req, res) => {
       message: 'Payment verified and order created successfully',
       order,
     });
+
+    // Increment Prometheus counter
+    ordersTotal.labels('online').inc();
   } catch (error) {
     console.error('Error verifying payment:', error);
+    checkoutFailuresTotal.labels('payment_verification_failed').inc();
     res.status(500).json({
       success: false,
       message: 'Failed to verify payment',
